@@ -24,11 +24,8 @@ from api.models import ErrorResponse
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('logs/api.log')
-    ]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(), logging.FileHandler("logs/api.log")],
 )
 
 logger = logging.getLogger(__name__)
@@ -38,12 +35,12 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Lifespan context manager for startup/shutdown."""
     logger.info("Browser Isolation API starting up...")
-    
+
     # Create logs directory
     Path("logs").mkdir(exist_ok=True)
-    
+
     yield
-    
+
     logger.info("Browser Isolation API shutting down...")
 
 
@@ -54,7 +51,7 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # Add CORS middleware
@@ -83,8 +80,8 @@ async def root():
             "check_url": "POST /api/v1/check-url",
             "audit": "GET /api/v1/audit",
             "policies": "GET /api/v1/policies",
-            "health": "GET /api/v1/health"
-        }
+            "health": "GET /api/v1/health",
+        },
     }
 
 
@@ -93,11 +90,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     """Handle validation errors."""
     logger.warning(f"Validation error: {exc}")
     return JSONResponse(
-        status_code=422,
-        content=ErrorResponse(
-            error="Validation Error",
-            detail=str(exc)
-        ).dict()
+        status_code=422, content=ErrorResponse(error="Validation Error", detail=str(exc)).dict()
     )
 
 
@@ -108,32 +101,24 @@ async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=500,
         content=ErrorResponse(
-            error="Internal Server Error",
-            detail="An unexpected error occurred"
-        ).dict()
+            error="Internal Server Error", detail="An unexpected error occurred"
+        ).dict(),
     )
 
 
 def start_server(host: str = "0.0.0.0", port: int = 8000, reload: bool = False):
     """
     Start the API server.
-    
+
     Args:
         host: Host to bind to
         port: Port to listen on
         reload: Enable auto-reload for development
     """
     logger.info(f"Starting Browser Isolation API on {host}:{port}")
-    
-    uvicorn.run(
-        "api.server:app",
-        host=host,
-        port=port,
-        reload=reload,
-        log_level="info"
-    )
+
+    uvicorn.run("api.server:app", host=host, port=port, reload=reload, log_level="info")
 
 
 if __name__ == "__main__":
     start_server(reload=True)
-

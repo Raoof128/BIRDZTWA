@@ -26,11 +26,11 @@ class TestDOMSanitizer:
             </body>
         </html>
         """
-        
+
         result = self.sanitizer.sanitize(html)
-        
-        assert '<script>' not in result.safe_html.lower()
-        assert 'alert' not in result.safe_html
+
+        assert "<script>" not in result.safe_html.lower()
+        assert "alert" not in result.safe_html
         assert result.removed_scripts == 2
 
     def test_remove_event_handlers(self):
@@ -44,12 +44,12 @@ class TestDOMSanitizer:
             </body>
         </html>
         """
-        
+
         result = self.sanitizer.sanitize(html)
-        
-        assert 'onclick' not in result.safe_html.lower()
-        assert 'onerror' not in result.safe_html.lower()
-        assert 'onload' not in result.safe_html.lower()
+
+        assert "onclick" not in result.safe_html.lower()
+        assert "onerror" not in result.safe_html.lower()
+        assert "onload" not in result.safe_html.lower()
         assert result.removed_event_handlers >= 3
 
     def test_remove_javascript_urls(self):
@@ -62,10 +62,10 @@ class TestDOMSanitizer:
             </body>
         </html>
         """
-        
+
         result = self.sanitizer.sanitize(html)
-        
-        assert 'javascript:' not in result.safe_html.lower()
+
+        assert "javascript:" not in result.safe_html.lower()
         assert len(result.blocked_urls) >= 2
 
     def test_remove_iframes(self):
@@ -78,10 +78,10 @@ class TestDOMSanitizer:
             </body>
         </html>
         """
-        
+
         result = self.sanitizer.sanitize(html)
-        
-        assert '<iframe' not in result.safe_html.lower()
+
+        assert "<iframe" not in result.safe_html.lower()
         assert result.removed_iframes == 2
 
     def test_preserve_safe_content(self):
@@ -96,14 +96,14 @@ class TestDOMSanitizer:
             </body>
         </html>
         """
-        
+
         result = self.sanitizer.sanitize(html)
-        
-        assert '<h1>' in result.safe_html.lower()
-        assert '<p>' in result.safe_html.lower()
-        assert '<img' in result.safe_html.lower()
-        assert '<a' in result.safe_html.lower()
-        assert 'safe-site.com' in result.safe_html.lower()
+
+        assert "<h1>" in result.safe_html.lower()
+        assert "<p>" in result.safe_html.lower()
+        assert "<img" in result.safe_html.lower()
+        assert "<a" in result.safe_html.lower()
+        assert "safe-site.com" in result.safe_html.lower()
 
     def test_risk_score_calculation(self):
         """Test risk score calculation."""
@@ -111,7 +111,7 @@ class TestDOMSanitizer:
         safe_html = "<html><body><p>Safe content</p></body></html>"
         result = self.sanitizer.sanitize(safe_html)
         assert result.risk_score < 3.0
-        
+
         # High risk
         dangerous_html = """
         <html>
@@ -137,12 +137,12 @@ class TestDOMSanitizer:
             </body>
         </html>
         """
-        
+
         sanitizer = DOMSanitizer(remove_trackers=True)
         result = sanitizer.sanitize(html)
-        
+
         assert result.removed_trackers > 0
-        assert 'google-analytics' not in result.safe_html.lower()
+        assert "google-analytics" not in result.safe_html.lower()
 
     def test_sanitize_css(self):
         """Test CSS sanitization."""
@@ -159,11 +159,11 @@ class TestDOMSanitizer:
             </body>
         </html>
         """
-        
+
         result = self.sanitizer.sanitize(html)
-        
-        assert 'javascript:' not in result.safe_html.lower()
-        assert 'expression(' not in result.safe_html.lower()
+
+        assert "javascript:" not in result.safe_html.lower()
+        assert "expression(" not in result.safe_html.lower()
 
     def test_size_reduction(self):
         """Test that sanitization reduces page size."""
@@ -178,9 +178,9 @@ class TestDOMSanitizer:
             </body>
         </html>
         """
-        
+
         result = self.sanitizer.sanitize(html)
-        
+
         assert result.sanitized_size < result.original_size
         assert result.sanitized_size > 0
 
@@ -188,7 +188,7 @@ class TestDOMSanitizer:
         """Test sanitization of empty HTML."""
         html = ""
         result = self.sanitizer.sanitize(html)
-        
+
         assert result.safe_html is not None
         assert result.removed_scripts == 0
 
@@ -204,14 +204,13 @@ class TestDOMSanitizer:
             </body>
         </html>
         """
-        
+
         # Default: keep forms
         sanitizer = DOMSanitizer(remove_forms=False)
         result = sanitizer.sanitize(html)
-        assert '<form' in result.safe_html.lower()
-        
+        assert "<form" in result.safe_html.lower()
+
         # Remove forms
         sanitizer = DOMSanitizer(remove_forms=True)
         result = sanitizer.sanitize(html)
-        assert '<form' not in result.safe_html.lower()
-
+        assert "<form" not in result.safe_html.lower()

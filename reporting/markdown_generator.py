@@ -24,7 +24,7 @@ class MarkdownReportGenerator:
         warnings: List[str],
         blocked_content: List[Dict[str, str]],
         risk_score: float,
-        timestamp: datetime
+        timestamp: datetime,
     ) -> str:
         """
         Generate a comprehensive isolation report.
@@ -86,22 +86,24 @@ This URL was isolated and sanitized in a remote headless browser environment. Al
 """
 
         # Add removed elements section
-        removed = metadata.get('removed_elements', {})
+        removed = metadata.get("removed_elements", {})
         if any(removed.values()):
             report += "### Removed Threats\n\n"
-            
-            if removed.get('scripts', 0) > 0:
+
+            if removed.get("scripts", 0) > 0:
                 report += f"- ✅ **Removed {removed['scripts']} JavaScript scripts** - All executable code stripped\n"
-            
-            if removed.get('event_handlers', 0) > 0:
+
+            if removed.get("event_handlers", 0) > 0:
                 report += f"- ✅ **Removed {removed['event_handlers']} event handlers** - Interactive threats neutralized\n"
-            
-            if removed.get('iframes', 0) > 0:
-                report += f"- ✅ **Blocked {removed['iframes']} iframes** - Embedded content blocked\n"
-            
-            if removed.get('trackers', 0) > 0:
+
+            if removed.get("iframes", 0) > 0:
+                report += (
+                    f"- ✅ **Blocked {removed['iframes']} iframes** - Embedded content blocked\n"
+                )
+
+            if removed.get("trackers", 0) > 0:
                 report += f"- ✅ **Removed {removed['trackers']} trackers** - Privacy protected\n"
-            
+
             report += "\n"
         else:
             report += "✅ **No threats detected** - Page was clean\n\n"
@@ -111,16 +113,14 @@ This URL was isolated and sanitized in a remote headless browser environment. Al
             report += "### Blocked Content Details\n\n"
             report += "| Type | Count | Description | Risk |\n"
             report += "|------|-------|-------------|------|\n"
-            
+
             for item in blocked_content:
-                risk_indicator = {
-                    'high': '🔴',
-                    'medium': '🟠',
-                    'low': '🟡'
-                }.get(item.get('risk', 'low'), '⚪')
-                
+                risk_indicator = {"high": "🔴", "medium": "🟠", "low": "🟡"}.get(
+                    item.get("risk", "low"), "⚪"
+                )
+
                 report += f"| {item.get('type', 'unknown')} | {item.get('count', 0)} | {item.get('description', 'N/A')} | {risk_indicator} |\n"
-            
+
             report += "\n"
 
         # Add warnings section
@@ -262,15 +262,12 @@ Browser Isolation (Remote Browser Isolation / RBI) is a Zero Trust security tech
         """
         path = Path(output_path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(path, 'w') as f:
+
+        with open(path, "w") as f:
             f.write(report)
 
     def generate_summary_report(
-        self,
-        renders: List[Dict[str, Any]],
-        start_date: datetime,
-        end_date: datetime
+        self, renders: List[Dict[str, Any]], start_date: datetime, end_date: datetime
     ) -> str:
         """
         Generate a summary report for multiple isolation operations.
@@ -284,20 +281,20 @@ Browser Isolation (Remote Browser Isolation / RBI) is a Zero Trust security tech
             Markdown formatted summary report
         """
         total_renders = len(renders)
-        
+
         if total_renders == 0:
             return "# No isolation operations in the specified period\n"
 
         # Calculate statistics
-        total_scripts = sum(r.get('removed_scripts', 0) for r in renders)
+        total_scripts = sum(r.get("removed_scripts", 0) for r in renders)
         total_threats = sum(
-            r.get('removed_scripts', 0) + 
-            r.get('removed_iframes', 0) + 
-            len(r.get('blocked_urls', [])) 
+            r.get("removed_scripts", 0)
+            + r.get("removed_iframes", 0)
+            + len(r.get("blocked_urls", []))
             for r in renders
         )
-        avg_risk = sum(r.get('risk_score', 0) for r in renders) / total_renders
-        high_risk_count = len([r for r in renders if r.get('risk_score', 0) >= 7.0])
+        avg_risk = sum(r.get("risk_score", 0) for r in renders) / total_renders
+        high_risk_count = len([r for r in renders if r.get("risk_score", 0) >= 7.0])
 
         report = f"""# Browser Isolation Summary Report
 
@@ -324,23 +321,22 @@ Browser Isolation (Remote Browser Isolation / RBI) is a Zero Trust security tech
 """
 
         # Add top dangerous pages
-        sorted_renders = sorted(renders, key=lambda r: r.get('risk_score', 0), reverse=True)
-        
+        sorted_renders = sorted(renders, key=lambda r: r.get("risk_score", 0), reverse=True)
+
         report += "### Most Dangerous Pages\n\n"
         report += "| Risk | URL | Scripts | Threats |\n"
         report += "|------|-----|---------|----------|\n"
-        
+
         for render in sorted_renders[:10]:
-            risk = render.get('risk_score', 0)
-            url = render.get('url', 'unknown')[:50]
-            scripts = render.get('removed_scripts', 0)
-            threats = scripts + render.get('removed_iframes', 0)
-            
+            risk = render.get("risk_score", 0)
+            url = render.get("url", "unknown")[:50]
+            scripts = render.get("removed_scripts", 0)
+            threats = scripts + render.get("removed_iframes", 0)
+
             risk_emoji = "🔴" if risk >= 7 else "🟠" if risk >= 5 else "🟡"
-            
+
             report += f"| {risk_emoji} {risk:.1f} | {url} | {scripts} | {threats} |\n"
 
         report += f"\n\n---\n\n**Report End**\n"
 
         return report
-

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RenderMetadata:
     """Metadata about the rendered page."""
-    
+
     url: str
     timestamp: str
     render_id: str
@@ -28,7 +28,7 @@ class RenderMetadata:
     risk_score: float
     removed_elements: Dict[str, int]
     status: str  # 'success', 'partial', 'failed'
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return asdict(self)
@@ -37,13 +37,13 @@ class RenderMetadata:
 @dataclass
 class SafeDOM:
     """Safe DOM snapshot for client rendering."""
-    
+
     html: str
     metadata: RenderMetadata
     resources: List[Dict[str, Any]]
     warnings: List[str]
     blocked_content: List[Dict[str, str]]
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
@@ -51,9 +51,9 @@ class SafeDOM:
             "metadata": self.metadata.to_dict(),
             "resources": self.resources,
             "warnings": self.warnings,
-            "blocked_content": self.blocked_content
+            "blocked_content": self.blocked_content,
         }
-    
+
     def to_json(self, indent: Optional[int] = 2) -> str:
         """Convert to JSON string."""
         return json.dumps(self.to_dict(), indent=indent)
@@ -62,7 +62,7 @@ class SafeDOM:
 class RemoteRenderer:
     """
     Creates safe DOM snapshots from sanitized HTML.
-    
+
     This component packages the sanitized content with metadata
     and resources for safe transmission to the client.
     """
@@ -72,7 +72,7 @@ class RemoteRenderer:
         include_metadata: bool = True,
         include_resources: bool = True,
         include_warnings: bool = True,
-        max_html_size: int = 10 * 1024 * 1024  # 10MB
+        max_html_size: int = 10 * 1024 * 1024,  # 10MB
     ):
         """
         Initialize remote renderer.
@@ -94,7 +94,7 @@ class RemoteRenderer:
         sanitized_html: str,
         sanitization_result: Any,
         fetch_result: Optional[Any] = None,
-        render_id: Optional[str] = None
+        render_id: Optional[str] = None,
     ) -> SafeDOM:
         """
         Create a safe DOM snapshot from sanitized HTML.
@@ -132,7 +132,7 @@ class RemoteRenderer:
             render_id=render_id,
             sanitization_result=sanitization_result,
             fetch_result=fetch_result,
-            html_size=html_size
+            html_size=html_size,
         )
 
         # Extract resources
@@ -154,7 +154,7 @@ class RemoteRenderer:
             metadata=metadata,
             resources=resources,
             warnings=warnings,
-            blocked_content=blocked_content
+            blocked_content=blocked_content,
         )
 
         logger.info(
@@ -169,6 +169,7 @@ class RemoteRenderer:
     def _generate_render_id(self, url: str) -> str:
         """Generate unique render ID."""
         import hashlib
+
         timestamp = datetime.now().isoformat()
         unique_string = f"{url}:{timestamp}"
         hash_digest = hashlib.sha256(unique_string.encode()).hexdigest()
@@ -180,16 +181,16 @@ class RemoteRenderer:
         render_id: str,
         sanitization_result: Any,
         fetch_result: Optional[Any],
-        html_size: int
+        html_size: int,
     ) -> RenderMetadata:
         """Build render metadata."""
-        
+
         # Extract removed elements counts
         removed_elements = {
             "scripts": sanitization_result.removed_scripts,
             "event_handlers": sanitization_result.removed_event_handlers,
             "iframes": sanitization_result.removed_iframes,
-            "trackers": sanitization_result.removed_trackers
+            "trackers": sanitization_result.removed_trackers,
         }
 
         # Calculate times
@@ -211,24 +212,26 @@ class RemoteRenderer:
             sanitization_time=sanitization_time,
             risk_score=sanitization_result.risk_score,
             removed_elements=removed_elements,
-            status=status
+            status=status,
         )
 
     def _extract_resources(self, fetch_result: Any) -> List[Dict[str, Any]]:
         """Extract resource information from fetch result."""
         resources = []
-        
+
         if hasattr(fetch_result, "resources"):
             # Limit number of resources to prevent bloat
             max_resources = 100
             for resource in fetch_result.resources[:max_resources]:
-                resources.append({
-                    "type": resource.get("type", "unknown"),
-                    "url": resource.get("url", ""),
-                    "status": resource.get("status", ""),
-                    "resource_type": resource.get("resource_type", "")
-                })
-        
+                resources.append(
+                    {
+                        "type": resource.get("type", "unknown"),
+                        "url": resource.get("url", ""),
+                        "status": resource.get("status", ""),
+                        "resource_type": resource.get("resource_type", ""),
+                    }
+                )
+
         return resources
 
     def _build_warnings(self, sanitization_result: Any) -> List[str]:
@@ -288,56 +291,63 @@ class RemoteRenderer:
 
         # Add scripts
         if sanitization_result.removed_scripts > 0:
-            blocked.append({
-                "type": "scripts",
-                "count": str(sanitization_result.removed_scripts),
-                "description": "JavaScript code removed for security",
-                "risk": "high"
-            })
+            blocked.append(
+                {
+                    "type": "scripts",
+                    "count": str(sanitization_result.removed_scripts),
+                    "description": "JavaScript code removed for security",
+                    "risk": "high",
+                }
+            )
 
         # Add event handlers
         if sanitization_result.removed_event_handlers > 0:
-            blocked.append({
-                "type": "event_handlers",
-                "count": str(sanitization_result.removed_event_handlers),
-                "description": "Interactive event handlers stripped",
-                "risk": "medium"
-            })
+            blocked.append(
+                {
+                    "type": "event_handlers",
+                    "count": str(sanitization_result.removed_event_handlers),
+                    "description": "Interactive event handlers stripped",
+                    "risk": "medium",
+                }
+            )
 
         # Add iframes
         if sanitization_result.removed_iframes > 0:
-            blocked.append({
-                "type": "iframes",
-                "count": str(sanitization_result.removed_iframes),
-                "description": "Embedded frames blocked",
-                "risk": "high"
-            })
+            blocked.append(
+                {
+                    "type": "iframes",
+                    "count": str(sanitization_result.removed_iframes),
+                    "description": "Embedded frames blocked",
+                    "risk": "high",
+                }
+            )
 
         # Add trackers
         if sanitization_result.removed_trackers > 0:
-            blocked.append({
-                "type": "trackers",
-                "count": str(sanitization_result.removed_trackers),
-                "description": "Tracking and analytics removed",
-                "risk": "low"
-            })
+            blocked.append(
+                {
+                    "type": "trackers",
+                    "count": str(sanitization_result.removed_trackers),
+                    "description": "Tracking and analytics removed",
+                    "risk": "low",
+                }
+            )
 
         # Add blocked URLs
         for url in sanitization_result.blocked_urls[:10]:  # Limit to 10
-            blocked.append({
-                "type": "dangerous_url",
-                "count": "1",
-                "description": f"Malicious URL: {url[:100]}",
-                "risk": "high"
-            })
+            blocked.append(
+                {
+                    "type": "dangerous_url",
+                    "count": "1",
+                    "description": f"Malicious URL: {url[:100]}",
+                    "risk": "high",
+                }
+            )
 
         return blocked
 
     def render_error_page(
-        self,
-        url: str,
-        error_message: str,
-        error_type: str = "fetch_error"
+        self, url: str, error_message: str, error_type: str = "fetch_error"
     ) -> SafeDOM:
         """
         Render an error page when fetch or sanitization fails.
@@ -413,7 +423,7 @@ class RemoteRenderer:
             sanitization_time=0.0,
             risk_score=0.0,
             removed_elements={},
-            status="failed"
+            status="failed",
         )
 
         return SafeDOM(
@@ -421,6 +431,5 @@ class RemoteRenderer:
             metadata=metadata,
             resources=[],
             warnings=[f"Error: {error_message}"],
-            blocked_content=[]
+            blocked_content=[],
         )
-

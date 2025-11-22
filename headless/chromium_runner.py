@@ -17,16 +17,13 @@ logger = logging.getLogger(__name__)
 class ChromiumRunner:
     """
     Manages headless Chromium browser instances.
-    
+
     Provides a clean interface for starting, stopping, and managing
     browser instances used for isolation operations.
     """
 
     def __init__(
-        self,
-        headless: bool = True,
-        proxy: Optional[str] = None,
-        extra_args: Optional[list] = None
+        self, headless: bool = True, proxy: Optional[str] = None, extra_args: Optional[list] = None
     ):
         """
         Initialize Chromium runner.
@@ -39,7 +36,7 @@ class ChromiumRunner:
         self.headless = headless
         self.proxy = proxy
         self.extra_args = extra_args or []
-        
+
         self._playwright: Optional[Playwright] = None
         self._browser: Optional[Browser] = None
         self._is_running = False
@@ -54,7 +51,7 @@ class ChromiumRunner:
 
         try:
             self._playwright = await async_playwright().start()
-            
+
             # Build launch arguments
             launch_args = [
                 "--no-sandbox",
@@ -80,10 +77,7 @@ class ChromiumRunner:
             launch_args.extend(self.extra_args)
 
             # Launch browser
-            launch_options: Dict[str, Any] = {
-                "headless": self.headless,
-                "args": launch_args
-            }
+            launch_options: Dict[str, Any] = {"headless": self.headless, "args": launch_args}
 
             if self.proxy:
                 launch_options["proxy"] = {"server": self.proxy}
@@ -156,4 +150,3 @@ async def managed_chromium(**kwargs):
         yield runner
     finally:
         await runner.stop()
-

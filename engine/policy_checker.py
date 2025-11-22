@@ -18,14 +18,8 @@ logger = logging.getLogger(__name__)
 
 class PolicyDecision:
     """Result of a policy check."""
-    
-    def __init__(
-        self,
-        allowed: bool,
-        reason: str,
-        risk_level: str,
-        matched_rules: List[str]
-    ):
+
+    def __init__(self, allowed: bool, reason: str, risk_level: str, matched_rules: List[str]):
         self.allowed = allowed
         self.reason = reason
         self.risk_level = risk_level  # 'low', 'medium', 'high', 'critical'
@@ -37,14 +31,14 @@ class PolicyDecision:
             "allowed": self.allowed,
             "reason": self.reason,
             "risk_level": self.risk_level,
-            "matched_rules": self.matched_rules
+            "matched_rules": self.matched_rules,
         }
 
 
 class PolicyChecker:
     """
     Enforces URL filtering and content policies.
-    
+
     Checks URLs against allow/deny lists and applies content
     filtering rules based on organizational policies.
     """
@@ -64,7 +58,7 @@ class PolicyChecker:
         self.allowed_patterns: List[re.Pattern] = []
         self.malware_domains: List[str] = []
         self.phishing_domains: List[str] = []
-        
+
         # Load configuration
         if config_path:
             self._load_config(config_path)
@@ -80,23 +74,23 @@ class PolicyChecker:
                 self._load_default_config()
                 return
 
-            with open(path, 'r') as f:
+            with open(path, "r") as f:
                 config = yaml.safe_load(f)
 
-            self.blocked_domains = config.get('blocked_domains', [])
-            self.allowed_domains = config.get('allowed_domains', [])
-            self.blocked_categories = config.get('block_categories', [])
-            
+            self.blocked_domains = config.get("blocked_domains", [])
+            self.allowed_domains = config.get("allowed_domains", [])
+            self.blocked_categories = config.get("block_categories", [])
+
             # Compile regex patterns
-            for pattern in config.get('blocked_patterns', []):
+            for pattern in config.get("blocked_patterns", []):
                 self.blocked_patterns.append(re.compile(pattern, re.IGNORECASE))
-            
-            for pattern in config.get('allowed_patterns', []):
+
+            for pattern in config.get("allowed_patterns", []):
                 self.allowed_patterns.append(re.compile(pattern, re.IGNORECASE))
 
             # Load threat intelligence
-            self.malware_domains = config.get('malware_domains', [])
-            self.phishing_domains = config.get('phishing_domains', [])
+            self.malware_domains = config.get("malware_domains", [])
+            self.phishing_domains = config.get("phishing_domains", [])
 
             logger.info(
                 f"Loaded policy config: {len(self.blocked_domains)} blocked domains, "
@@ -114,34 +108,16 @@ class PolicyChecker:
             "malware-site.com",
             "phishing-example.net",
             "crypto-miner.io",
-            "suspicious-ads.com"
-        ]
-        
-        self.allowed_domains = [
-            "google.com",
-            "github.com",
-            "stackoverflow.com"
-        ]
-        
-        self.blocked_categories = [
-            "ads",
-            "trackers",
-            "cryptominers",
-            "malware",
-            "phishing"
+            "suspicious-ads.com",
         ]
 
-        self.malware_domains = [
-            "known-malware.com",
-            "virus-distributor.net",
-            "trojan-host.io"
-        ]
+        self.allowed_domains = ["google.com", "github.com", "stackoverflow.com"]
 
-        self.phishing_domains = [
-            "paypa1.com",  # Typosquatting
-            "g00gle.com",
-            "micr0soft.com"
-        ]
+        self.blocked_categories = ["ads", "trackers", "cryptominers", "malware", "phishing"]
+
+        self.malware_domains = ["known-malware.com", "virus-distributor.net", "trojan-host.io"]
+
+        self.phishing_domains = ["paypa1.com", "g00gle.com", "micr0soft.com"]  # Typosquatting
 
         logger.info("Loaded default policy configuration")
 
@@ -167,16 +143,16 @@ class PolicyChecker:
                     allowed=False,
                     reason="Invalid URL format",
                     risk_level="medium",
-                    matched_rules=["invalid_format"]
+                    matched_rules=["invalid_format"],
                 )
 
             # Only allow HTTP/HTTPS
-            if parsed.scheme not in ['http', 'https']:
+            if parsed.scheme not in ["http", "https"]:
                 return PolicyDecision(
                     allowed=False,
                     reason=f"Protocol '{parsed.scheme}' not allowed (only HTTP/HTTPS)",
                     risk_level="medium",
-                    matched_rules=["protocol_violation"]
+                    matched_rules=["protocol_violation"],
                 )
 
             # Extract domain components
@@ -192,7 +168,7 @@ class PolicyChecker:
                     allowed=False,
                     reason=f"Domain '{full_domain}' is known malware distributor",
                     risk_level="critical",
-                    matched_rules=matched_rules
+                    matched_rules=matched_rules,
                 )
 
             # Check phishing domains
@@ -202,7 +178,7 @@ class PolicyChecker:
                     allowed=False,
                     reason=f"Domain '{full_domain}' is known phishing site",
                     risk_level="critical",
-                    matched_rules=matched_rules
+                    matched_rules=matched_rules,
                 )
 
             # Check explicit block list
@@ -212,7 +188,7 @@ class PolicyChecker:
                     allowed=False,
                     reason=f"Domain '{full_domain}' is blocked by policy",
                     risk_level="high",
-                    matched_rules=matched_rules
+                    matched_rules=matched_rules,
                 )
 
             # Check blocked patterns
@@ -223,7 +199,7 @@ class PolicyChecker:
                         allowed=False,
                         reason=f"URL matches blocked pattern",
                         risk_level="high",
-                        matched_rules=matched_rules
+                        matched_rules=matched_rules,
                     )
 
             # Check allow list (if domain is explicitly allowed, skip other checks)
@@ -233,7 +209,7 @@ class PolicyChecker:
                     allowed=True,
                     reason=f"Domain '{full_domain}' is explicitly allowed",
                     risk_level="low",
-                    matched_rules=matched_rules
+                    matched_rules=matched_rules,
                 )
 
             # Check allowed patterns
@@ -244,7 +220,7 @@ class PolicyChecker:
                         allowed=True,
                         reason="URL matches allowed pattern",
                         risk_level="low",
-                        matched_rules=matched_rules
+                        matched_rules=matched_rules,
                     )
 
             # Check for suspicious URL patterns
@@ -254,7 +230,7 @@ class PolicyChecker:
                     allowed=True,  # Allow but warn
                     reason="URL has suspicious characteristics but not blocked",
                     risk_level="medium",
-                    matched_rules=risk_indicators
+                    matched_rules=risk_indicators,
                 )
 
             # Default: Allow (Zero Trust isolation handles the rest)
@@ -262,7 +238,7 @@ class PolicyChecker:
                 allowed=True,
                 reason="No blocking rules matched, isolation will sanitize content",
                 risk_level="low",
-                matched_rules=["default_allow"]
+                matched_rules=["default_allow"],
             )
 
         except Exception as e:
@@ -271,7 +247,7 @@ class PolicyChecker:
                 allowed=False,
                 reason=f"Policy check error: {str(e)}",
                 risk_level="high",
-                matched_rules=["error"]
+                matched_rules=["error"],
             )
 
     def _is_blocked_domain(self, domain: str) -> bool:
@@ -311,16 +287,16 @@ class PolicyChecker:
         indicators = []
 
         # Check for IP address instead of domain
-        if re.search(r'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', url):
+        if re.search(r"https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", url):
             indicators.append("ip_address_url")
 
         # Check for excessive subdomain depth
         parsed = urlparse(url)
-        if parsed.netloc.count('.') > 3:
+        if parsed.netloc.count(".") > 3:
             indicators.append("excessive_subdomains")
 
         # Check for suspicious TLDs
-        suspicious_tlds = ['.xyz', '.top', '.tk', '.ml', '.ga', '.cf', '.gq']
+        suspicious_tlds = [".xyz", ".top", ".tk", ".ml", ".ga", ".cf", ".gq"]
         if any(url.lower().endswith(tld) for tld in suspicious_tlds):
             indicators.append("suspicious_tld")
 
@@ -329,11 +305,11 @@ class PolicyChecker:
             indicators.append("long_domain")
 
         # Check for excessive random characters
-        if re.search(r'[a-z0-9]{30,}', parsed.netloc):
+        if re.search(r"[a-z0-9]{30,}", parsed.netloc):
             indicators.append("random_chars")
 
         # Check for homograph attacks (mixing character sets)
-        if re.search(r'[а-яА-Я]', url):  # Cyrillic characters
+        if re.search(r"[а-яА-Я]", url):  # Cyrillic characters
             indicators.append("homograph_attack")
 
         return indicators
@@ -357,16 +333,16 @@ class PolicyChecker:
                 allowed=False,
                 reason=f"Content size ({size} bytes) exceeds limit ({max_size} bytes)",
                 risk_level="medium",
-                matched_rules=["size_exceeded"]
+                matched_rules=["size_exceeded"],
             )
 
         # Check content type
         allowed_types = [
-            'text/html',
-            'text/plain',
-            'application/xhtml+xml',
-            'text/xml',
-            'application/xml'
+            "text/html",
+            "text/plain",
+            "application/xhtml+xml",
+            "text/xml",
+            "application/xml",
         ]
 
         if not any(content_type.startswith(t) for t in allowed_types):
@@ -374,14 +350,14 @@ class PolicyChecker:
                 allowed=False,
                 reason=f"Content type '{content_type}' not supported for isolation",
                 risk_level="low",
-                matched_rules=["unsupported_content_type"]
+                matched_rules=["unsupported_content_type"],
             )
 
         return PolicyDecision(
             allowed=True,
             reason="Content meets policy requirements",
             risk_level="low",
-            matched_rules=["content_ok"]
+            matched_rules=["content_ok"],
         )
 
     def get_policy_summary(self) -> Dict:
@@ -393,6 +369,5 @@ class PolicyChecker:
             "blocked_patterns_count": len(self.blocked_patterns),
             "allowed_patterns_count": len(self.allowed_patterns),
             "malware_domains_count": len(self.malware_domains),
-            "phishing_domains_count": len(self.phishing_domains)
+            "phishing_domains_count": len(self.phishing_domains),
         }
-

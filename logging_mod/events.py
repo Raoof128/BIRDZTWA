@@ -15,7 +15,7 @@ from dataclasses import dataclass, asdict
 
 class EventType(str, Enum):
     """Types of audit events."""
-    
+
     RENDER_SUCCESS = "render_success"
     RENDER_BLOCKED = "render_blocked"
     RENDER_ERROR = "render_error"
@@ -30,7 +30,7 @@ class EventType(str, Enum):
 @dataclass
 class AuditEvent:
     """Single audit event."""
-    
+
     timestamp: datetime
     event_type: str
     url: Optional[str]
@@ -39,13 +39,13 @@ class AuditEvent:
     action: str
     details: Dict[str, Any]
     risk_score: Optional[float]
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         data = asdict(self)
-        data['timestamp'] = self.timestamp.isoformat()
+        data["timestamp"] = self.timestamp.isoformat()
         return data
-    
+
     def to_json(self) -> str:
         """Convert to JSON string."""
         return json.dumps(self.to_dict())
@@ -54,7 +54,7 @@ class AuditEvent:
 class AuditLogger:
     """
     Audit logger for browser isolation events.
-    
+
     Logs all security-relevant events to structured JSON log files
     for compliance, forensics, and monitoring.
     """
@@ -63,7 +63,7 @@ class AuditLogger:
         self,
         log_file: str = "logs/isolation_audit.log",
         json_format: bool = True,
-        console_output: bool = True
+        console_output: bool = True,
     ):
         """
         Initialize audit logger.
@@ -76,42 +76,34 @@ class AuditLogger:
         self.log_file = Path(log_file)
         self.json_format = json_format
         self.console_output = console_output
-        
+
         # Ensure log directory exists
         self.log_file.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Set up Python logger
         self.logger = logging.getLogger("audit")
         self.logger.setLevel(logging.INFO)
-        
+
         # File handler
         file_handler = logging.FileHandler(self.log_file)
         file_handler.setLevel(logging.INFO)
-        
+
         if json_format:
-            file_handler.setFormatter(
-                logging.Formatter('%(message)s')
-            )
+            file_handler.setFormatter(logging.Formatter("%(message)s"))
         else:
             file_handler.setFormatter(
-                logging.Formatter(
-                    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-                )
+                logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
             )
-        
+
         self.logger.addHandler(file_handler)
-        
+
         # Console handler
         if console_output:
             console_handler = logging.StreamHandler()
             console_handler.setLevel(logging.INFO)
-            console_handler.setFormatter(
-                logging.Formatter(
-                    '%(asctime)s - AUDIT - %(message)s'
-                )
-            )
+            console_handler.setFormatter(logging.Formatter("%(asctime)s - AUDIT - %(message)s"))
             self.logger.addHandler(console_handler)
-        
+
         # In-memory cache for recent events (for API queries)
         self._event_cache: List[AuditEvent] = []
         self._cache_max_size = 1000
@@ -124,7 +116,7 @@ class AuditLogger:
         url: Optional[str] = None,
         render_id: Optional[str] = None,
         user: Optional[str] = None,
-        risk_score: Optional[float] = None
+        risk_score: Optional[float] = None,
     ) -> None:
         """
         Log an audit event.
@@ -146,34 +138,30 @@ class AuditLogger:
             user=user,
             action=action,
             details=details,
-            risk_score=risk_score
+            risk_score=risk_score,
         )
-        
+
         # Log to file
         if self.json_format:
             self.logger.info(event.to_json())
         else:
             self.logger.info(
-                f"Event: {event_type} | Action: {action} | "
-                f"URL: {url} | Details: {details}"
+                f"Event: {event_type} | Action: {action} | " f"URL: {url} | Details: {details}"
             )
-        
+
         # Add to cache
         self._add_to_cache(event)
 
     def _add_to_cache(self, event: AuditEvent) -> None:
         """Add event to in-memory cache."""
         self._event_cache.append(event)
-        
+
         # Trim cache if too large
         if len(self._event_cache) > self._cache_max_size:
-            self._event_cache = self._event_cache[-self._cache_max_size:]
+            self._event_cache = self._event_cache[-self._cache_max_size :]
 
     def get_logs(
-        self,
-        limit: int = 50,
-        offset: int = 0,
-        event_type: Optional[str] = None
+        self, limit: int = 50, offset: int = 0, event_type: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Retrieve recent audit logs from cache.
@@ -190,13 +178,13 @@ class AuditLogger:
         events = self._event_cache
         if event_type:
             events = [e for e in events if e.event_type == event_type]
-        
+
         # Sort by timestamp (newest first)
         events = sorted(events, key=lambda e: e.timestamp, reverse=True)
-        
+
         # Apply pagination
-        events = events[offset:offset + limit]
-        
+        events = events[offset : offset + limit]
+
         # Convert to dicts
         return [e.to_dict() for e in events]
 
@@ -208,25 +196,29 @@ class AuditLogger:
             Dictionary with statistics
         """
         total_events = len(self._event_cache)
-        
+
         # Count by event type
         event_counts = {}
         for event in self._event_cache:
             event_counts[event.event_type] = event_counts.get(event.event_type, 0) + 1
-        
+
         # Calculate risk statistics
         risk_scores = [e.risk_score for e in self._event_cache if e.risk_score is not None]
         avg_risk = sum(risk_scores) / len(risk_scores) if risk_scores else 0.0
         high_risk_count = len([r for r in risk_scores if r >= 7.0])
-        
+
         return {
             "total_events": total_events,
             "event_counts": event_counts,
             "average_risk_score": round(avg_risk, 2),
             "high_risk_events": high_risk_count,
             "cache_size": len(self._event_cache),
-            "oldest_event": self._event_cache[0].timestamp.isoformat() if self._event_cache else None,
-            "newest_event": self._event_cache[-1].timestamp.isoformat() if self._event_cache else None
+            "oldest_event": self._event_cache[0].timestamp.isoformat()
+            if self._event_cache
+            else None,
+            "newest_event": self._event_cache[-1].timestamp.isoformat()
+            if self._event_cache
+            else None,
         }
 
     def export_logs(
@@ -234,7 +226,7 @@ class AuditLogger:
         output_file: str,
         format: str = "json",
         start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None
+        end_date: Optional[datetime] = None,
     ) -> int:
         """
         Export audit logs to file.
@@ -254,22 +246,23 @@ class AuditLogger:
             events = [e for e in events if e.timestamp >= start_date]
         if end_date:
             events = [e for e in events if e.timestamp <= end_date]
-        
+
         output_path = Path(output_file)
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         if format == "json":
-            with open(output_path, 'w') as f:
+            with open(output_path, "w") as f:
                 json.dump([e.to_dict() for e in events], f, indent=2)
         elif format == "csv":
             import csv
-            with open(output_path, 'w', newline='') as f:
+
+            with open(output_path, "w", newline="") as f:
                 if events:
                     writer = csv.DictWriter(f, fieldnames=events[0].to_dict().keys())
                     writer.writeheader()
                     for event in events:
                         writer.writerow(event.to_dict())
-        
+
         self.logger.info(f"Exported {len(events)} events to {output_file}")
         return len(events)
 
@@ -284,4 +277,3 @@ def get_audit_logger() -> AuditLogger:
     if _audit_logger is None:
         _audit_logger = AuditLogger()
     return _audit_logger
-

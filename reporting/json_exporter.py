@@ -23,11 +23,7 @@ class JSONExporter:
         """
         self.pretty = pretty
 
-    def export_render(
-        self,
-        render_data: Dict[str, Any],
-        output_path: Optional[str] = None
-    ) -> str:
+    def export_render(self, render_data: Dict[str, Any], output_path: Optional[str] = None) -> str:
         """
         Export a single render operation to JSON.
 
@@ -41,11 +37,7 @@ class JSONExporter:
         # Ensure datetime objects are serialized
         render_data = self._prepare_for_json(render_data)
 
-        json_str = json.dumps(
-            render_data,
-            indent=2 if self.pretty else None,
-            sort_keys=True
-        )
+        json_str = json.dumps(render_data, indent=2 if self.pretty else None, sort_keys=True)
 
         if output_path:
             self.save_json(json_str, output_path)
@@ -53,9 +45,7 @@ class JSONExporter:
         return json_str
 
     def export_multiple(
-        self,
-        renders: List[Dict[str, Any]],
-        output_path: Optional[str] = None
+        self, renders: List[Dict[str, Any]], output_path: Optional[str] = None
     ) -> str:
         """
         Export multiple render operations to JSON.
@@ -75,25 +65,17 @@ class JSONExporter:
             "export_timestamp": datetime.now().isoformat(),
             "total_renders": len(prepared_renders),
             "format_version": "1.0",
-            "renders": prepared_renders
+            "renders": prepared_renders,
         }
 
-        json_str = json.dumps(
-            export_data,
-            indent=2 if self.pretty else None,
-            sort_keys=True
-        )
+        json_str = json.dumps(export_data, indent=2 if self.pretty else None, sort_keys=True)
 
         if output_path:
             self.save_json(json_str, output_path)
 
         return json_str
 
-    def export_siem_format(
-        self,
-        render_data: Dict[str, Any],
-        siem_type: str = "generic"
-    ) -> str:
+    def export_siem_format(self, render_data: Dict[str, Any], siem_type: str = "generic") -> str:
         """
         Export in SIEM-compatible format.
 
@@ -112,7 +94,7 @@ class JSONExporter:
                 "time": datetime.now().timestamp(),
                 "source": "browser_isolation",
                 "sourcetype": "isolation:render",
-                "event": render_data
+                "event": render_data,
             }
         elif siem_type == "elk":
             # ELK format
@@ -120,7 +102,7 @@ class JSONExporter:
                 "@timestamp": datetime.now().isoformat(),
                 "@version": "1",
                 "type": "browser_isolation",
-                "event": render_data
+                "event": render_data,
             }
         elif siem_type == "sentinel":
             # Azure Sentinel format
@@ -128,26 +110,20 @@ class JSONExporter:
                 "TimeGenerated": datetime.now().isoformat(),
                 "Type": "BrowserIsolation",
                 "Category": "SecurityEvent",
-                **render_data
+                **render_data,
             }
         else:
             # Generic format
             siem_data = {
                 "timestamp": datetime.now().isoformat(),
                 "log_type": "browser_isolation",
-                "severity": self._map_risk_to_severity(
-                    render_data.get('risk_score', 0)
-                ),
-                "data": render_data
+                "severity": self._map_risk_to_severity(render_data.get("risk_score", 0)),
+                "data": render_data,
             }
 
         return json.dumps(siem_data, indent=2 if self.pretty else None)
 
-    def export_statistics(
-        self,
-        stats: Dict[str, Any],
-        output_path: Optional[str] = None
-    ) -> str:
+    def export_statistics(self, stats: Dict[str, Any], output_path: Optional[str] = None) -> str:
         """
         Export statistics in JSON format.
 
@@ -159,12 +135,8 @@ class JSONExporter:
             JSON string
         """
         stats = self._prepare_for_json(stats)
-        
-        json_str = json.dumps(
-            stats,
-            indent=2 if self.pretty else None,
-            sort_keys=True
-        )
+
+        json_str = json.dumps(stats, indent=2 if self.pretty else None, sort_keys=True)
 
         if output_path:
             self.save_json(json_str, output_path)
@@ -181,8 +153,8 @@ class JSONExporter:
         """
         path = Path(output_path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(path, 'w') as f:
+
+        with open(path, "w") as f:
             f.write(json_str)
 
     def _prepare_for_json(self, data: Any) -> Any:
@@ -197,7 +169,7 @@ class JSONExporter:
             return [self._prepare_for_json(item) for item in data]
         elif isinstance(data, datetime):
             return data.isoformat()
-        elif hasattr(data, '__dict__'):
+        elif hasattr(data, "__dict__"):
             return self._prepare_for_json(data.__dict__)
         else:
             return data
@@ -212,4 +184,3 @@ class JSONExporter:
             return "medium"
         else:
             return "low"
-

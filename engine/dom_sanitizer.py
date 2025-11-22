@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class SanitizationResult:
     """Result of DOM sanitization operation."""
-    
+
     def __init__(
         self,
         safe_html: str,
@@ -29,7 +29,7 @@ class SanitizationResult:
         removed_trackers: int,
         blocked_urls: List[str],
         suspicious_content: List[str],
-        risk_score: float
+        risk_score: float,
     ):
         self.safe_html = safe_html
         self.original_size = original_size
@@ -57,38 +57,83 @@ class SanitizationResult:
             "removed_trackers": self.removed_trackers,
             "blocked_urls": self.blocked_urls,
             "suspicious_content": self.suspicious_content,
-            "risk_score": self.risk_score
+            "risk_score": self.risk_score,
         }
 
 
 class DOMSanitizer:
     """
     Sanitizes HTML DOM by removing all JavaScript and dangerous content.
-    
+
     This is the core security component that transforms potentially
     malicious HTML into safe, inert content for display.
     """
 
     # Dangerous JavaScript event handlers
     EVENT_HANDLERS = [
-        "onclick", "ondblclick", "onmousedown", "onmouseup", "onmouseover",
-        "onmousemove", "onmouseout", "onmouseenter", "onmouseleave",
-        "onload", "onunload", "onchange", "onsubmit", "onreset", "onselect",
-        "onblur", "onfocus", "onkeydown", "onkeypress", "onkeyup",
-        "onerror", "onabort", "ondrag", "ondrop", "onscroll", "onresize",
-        "ontouchstart", "ontouchmove", "ontouchend", "onpointerdown",
-        "onpointerup", "onpointermove", "onbeforeunload", "onhashchange",
-        "onpopstate", "onanimationstart", "onanimationend", "ontransitionend"
+        "onclick",
+        "ondblclick",
+        "onmousedown",
+        "onmouseup",
+        "onmouseover",
+        "onmousemove",
+        "onmouseout",
+        "onmouseenter",
+        "onmouseleave",
+        "onload",
+        "onunload",
+        "onchange",
+        "onsubmit",
+        "onreset",
+        "onselect",
+        "onblur",
+        "onfocus",
+        "onkeydown",
+        "onkeypress",
+        "onkeyup",
+        "onerror",
+        "onabort",
+        "ondrag",
+        "ondrop",
+        "onscroll",
+        "onresize",
+        "ontouchstart",
+        "ontouchmove",
+        "ontouchend",
+        "onpointerdown",
+        "onpointerup",
+        "onpointermove",
+        "onbeforeunload",
+        "onhashchange",
+        "onpopstate",
+        "onanimationstart",
+        "onanimationend",
+        "ontransitionend",
     ]
 
     # Known tracking and ad domains
     TRACKER_DOMAINS = [
-        "doubleclick.net", "google-analytics.com", "googletagmanager.com",
-        "facebook.com/tr", "connect.facebook.net", "analytics.js",
-        "scorecardresearch.com", "quantserve.com", "chartbeat.com",
-        "hotjar.com", "crazyegg.com", "mouseflow.com", "clicktale.com",
-        "newrelic.com", "nr-data.net", "sentry.io", "bugsnag.com",
-        "advertising.com", "adnxs.com", "adsystem.com", "advertising.com"
+        "doubleclick.net",
+        "google-analytics.com",
+        "googletagmanager.com",
+        "facebook.com/tr",
+        "connect.facebook.net",
+        "analytics.js",
+        "scorecardresearch.com",
+        "quantserve.com",
+        "chartbeat.com",
+        "hotjar.com",
+        "crazyegg.com",
+        "mouseflow.com",
+        "clicktale.com",
+        "newrelic.com",
+        "nr-data.net",
+        "sentry.io",
+        "bugsnag.com",
+        "advertising.com",
+        "adnxs.com",
+        "adsystem.com",
+        "advertising.com",
     ]
 
     # Suspicious patterns in content
@@ -121,7 +166,7 @@ class DOMSanitizer:
         sanitize_css: bool = True,
         allow_images: bool = True,
         allow_links: bool = True,
-        policies: Optional[Dict] = None
+        policies: Optional[Dict] = None,
     ):
         """
         Initialize DOM sanitizer.
@@ -152,7 +197,7 @@ class DOMSanitizer:
             "removed_iframes": 0,
             "removed_trackers": 0,
             "blocked_urls": [],
-            "suspicious_content": []
+            "suspicious_content": [],
         }
 
     def sanitize(self, html: str, base_url: Optional[str] = None) -> SanitizationResult:
@@ -167,7 +212,7 @@ class DOMSanitizer:
             SanitizationResult with safe HTML and statistics
         """
         logger.info("Starting DOM sanitization")
-        
+
         original_size = len(html)
         self._reset_stats()
 
@@ -235,7 +280,7 @@ class DOMSanitizer:
             removed_trackers=self._stats["removed_trackers"],
             blocked_urls=self._stats["blocked_urls"],
             suspicious_content=self._stats["suspicious_content"],
-            risk_score=risk_score
+            risk_score=risk_score,
         )
 
     def _reset_stats(self) -> None:
@@ -246,7 +291,7 @@ class DOMSanitizer:
             "removed_iframes": 0,
             "removed_trackers": 0,
             "blocked_urls": [],
-            "suspicious_content": []
+            "suspicious_content": [],
         }
 
     def _remove_scripts(self, soup: BeautifulSoup) -> None:
@@ -257,7 +302,7 @@ class DOMSanitizer:
             if script.string:
                 self._check_script_content(script.string)
             script.decompose()
-        
+
         self._stats["removed_scripts"] = len(scripts)
         logger.debug(f"Removed {len(scripts)} <script> tags")
 
@@ -269,7 +314,7 @@ class DOMSanitizer:
             if src:
                 self._stats["blocked_urls"].append(f"iframe: {src}")
             iframe.decompose()
-        
+
         self._stats["removed_iframes"] = len(iframes)
         logger.debug(f"Removed {len(iframes)} <iframe> tags")
 
@@ -278,31 +323,31 @@ class DOMSanitizer:
         forms = soup.find_all("form")
         for form in forms:
             form.decompose()
-        
+
         logger.debug(f"Removed {len(forms)} <form> tags")
 
     def _remove_event_handlers(self, soup: BeautifulSoup) -> None:
         """Remove all JavaScript event handlers from tags."""
         count = 0
-        
+
         for tag in soup.find_all(True):  # Find all tags
             for event_handler in self.EVENT_HANDLERS:
                 if tag.has_attr(event_handler):
                     del tag[event_handler]
                     count += 1
-        
+
         self._stats["removed_event_handlers"] = count
         logger.debug(f"Removed {count} event handler attributes")
 
     def _sanitize_urls(self, soup: BeautifulSoup) -> None:
         """Remove javascript: and data: URLs from href and src attributes."""
         dangerous_protocols = ["javascript:", "data:", "vbscript:"]
-        
+
         for tag in soup.find_all(True):
             for attr in ["href", "src", "action", "formaction", "xlink:href"]:
                 if tag.has_attr(attr):
                     url = tag[attr].strip().lower()
-                    
+
                     # Check for dangerous protocols
                     for protocol in dangerous_protocols:
                         if url.startswith(protocol):
@@ -314,7 +359,7 @@ class DOMSanitizer:
     def _remove_trackers(self, soup: BeautifulSoup) -> None:
         """Remove known tracking pixels and scripts."""
         count = 0
-        
+
         # Remove tracking images
         for img in soup.find_all("img"):
             src = img.get("src", "")
@@ -322,7 +367,7 @@ class DOMSanitizer:
                 logger.debug(f"Removed tracker: {src}")
                 img.decompose()
                 count += 1
-        
+
         # Remove tracking scripts
         for link in soup.find_all("link"):
             href = link.get("href", "")
@@ -330,7 +375,7 @@ class DOMSanitizer:
                 logger.debug(f"Removed tracker link: {href}")
                 link.decompose()
                 count += 1
-        
+
         self._stats["removed_trackers"] = count
 
     def _is_tracker_url(self, url: str) -> bool:
@@ -338,18 +383,26 @@ class DOMSanitizer:
         try:
             parsed = urlparse(url)
             domain = parsed.netloc.lower()
-            
+
             for tracker in self.TRACKER_DOMAINS:
                 if tracker in domain:
                     return True
-            
+
             # Check for common tracking patterns
-            if any(pattern in url.lower() for pattern in [
-                "analytics", "tracking", "beacon", "pixel", "ads",
-                "doubleclick", "facebook.com/tr"
-            ]):
+            if any(
+                pattern in url.lower()
+                for pattern in [
+                    "analytics",
+                    "tracking",
+                    "beacon",
+                    "pixel",
+                    "ads",
+                    "doubleclick",
+                    "facebook.com/tr",
+                ]
+            ):
                 return True
-            
+
             return False
         except Exception:
             return False
@@ -380,10 +433,16 @@ class DOMSanitizer:
     def _remove_dangerous_attributes(self, soup: BeautifulSoup) -> None:
         """Remove attributes that could be dangerous."""
         dangerous_attrs = [
-            "formaction", "form", "import", "integrity",
-            "is", "ping", "srcdoc", "xml"
+            "formaction",
+            "form",
+            "import",
+            "integrity",
+            "is",
+            "ping",
+            "srcdoc",
+            "xml",
         ]
-        
+
         for tag in soup.find_all(True):
             for attr in dangerous_attrs:
                 if tag.has_attr(attr):
@@ -393,14 +452,12 @@ class DOMSanitizer:
         """Check script content for suspicious patterns."""
         for pattern in self.SUSPICIOUS_PATTERNS:
             if re.search(pattern, content, re.IGNORECASE):
-                self._stats["suspicious_content"].append(
-                    f"Pattern: {pattern}"
-                )
+                self._stats["suspicious_content"].append(f"Pattern: {pattern}")
 
     def _detect_suspicious_content(self, soup: BeautifulSoup) -> None:
         """Detect suspicious patterns in remaining content."""
         text_content = soup.get_text()
-        
+
         for pattern in self.SUSPICIOUS_PATTERNS:
             matches = re.findall(pattern, text_content, re.IGNORECASE)
             if matches:
@@ -411,62 +468,91 @@ class DOMSanitizer:
     def _final_bleach_pass(self, html: str) -> str:
         """
         Final sanitization pass using bleach library.
-        
+
         This is a defense-in-depth measure to catch anything
         that might have been missed.
         """
         allowed_tags = [
-            "a", "abbr", "acronym", "b", "blockquote", "br", "code",
-            "div", "em", "i", "li", "ol", "p", "pre", "span", "strong",
-            "ul", "h1", "h2", "h3", "h4", "h5", "h6", "table", "thead",
-            "tbody", "tr", "td", "th", "img", "hr", "dl", "dt", "dd"
+            "a",
+            "abbr",
+            "acronym",
+            "b",
+            "blockquote",
+            "br",
+            "code",
+            "div",
+            "em",
+            "i",
+            "li",
+            "ol",
+            "p",
+            "pre",
+            "span",
+            "strong",
+            "ul",
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "table",
+            "thead",
+            "tbody",
+            "tr",
+            "td",
+            "th",
+            "img",
+            "hr",
+            "dl",
+            "dt",
+            "dd",
         ]
-        
+
         if self.allow_images:
             allowed_tags.append("img")
-        
+
         allowed_attributes = {
             "a": ["href", "title", "rel"],
             "img": ["src", "alt", "title", "width", "height"],
             "div": ["class", "id"],
             "span": ["class", "id"],
             "p": ["class"],
-            "*": ["class"]
+            "*": ["class"],
         }
-        
+
         allowed_protocols = ["http", "https", "mailto"]
-        
+
         return bleach.clean(
             html,
             tags=allowed_tags,
             attributes=allowed_attributes,
             protocols=allowed_protocols,
-            strip=True
+            strip=True,
         )
 
     def _calculate_risk_score(self) -> float:
         """
         Calculate risk score based on sanitization actions.
-        
+
         Returns:
             Risk score from 0.0 (safe) to 10.0 (very dangerous)
         """
         score = 0.0
-        
+
         # Scripts are high risk
         score += min(self._stats["removed_scripts"] * 0.5, 3.0)
-        
+
         # Event handlers are medium risk
         score += min(self._stats["removed_event_handlers"] * 0.1, 2.0)
-        
+
         # Iframes are medium-high risk
         score += min(self._stats["removed_iframes"] * 0.3, 2.0)
-        
+
         # Suspicious content is high risk
         score += min(len(self._stats["suspicious_content"]) * 0.4, 2.0)
-        
+
         # Blocked URLs
         score += min(len(self._stats["blocked_urls"]) * 0.2, 1.0)
-        
-        return min(round(score, 1), 10.0)
 
+        return min(round(score, 1), 10.0)

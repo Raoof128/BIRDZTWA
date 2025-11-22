@@ -11,23 +11,23 @@ from datetime import datetime
 
 class RenderRequest(BaseModel):
     """Request to render a URL."""
-    
+
     url: str = Field(..., description="URL to isolate and render")
     timeout: int = Field(30, ge=5, le=120, description="Timeout in seconds")
     wait_for_load: bool = Field(True, description="Wait for full page load")
     block_trackers: bool = Field(True, description="Block tracking elements")
-    
-    @validator('url')
+
+    @validator("url")
     def validate_url(cls, v):
         """Validate URL format."""
-        if not v.startswith(('http://', 'https://')):
-            raise ValueError('URL must start with http:// or https://')
+        if not v.startswith(("http://", "https://")):
+            raise ValueError("URL must start with http:// or https://")
         return v
 
 
 class RenderStatus(BaseModel):
     """Status of a render operation."""
-    
+
     render_id: str
     status: str  # 'pending', 'processing', 'completed', 'failed'
     url: str
@@ -39,7 +39,7 @@ class RenderStatus(BaseModel):
 
 class RenderResponse(BaseModel):
     """Response from render operation."""
-    
+
     render_id: str
     url: str
     status: str
@@ -53,13 +53,13 @@ class RenderResponse(BaseModel):
 
 class PolicyCheckRequest(BaseModel):
     """Request to check URL policy."""
-    
+
     url: str = Field(..., description="URL to check")
 
 
 class PolicyCheckResponse(BaseModel):
     """Response from policy check."""
-    
+
     url: str
     allowed: bool
     reason: str
@@ -69,7 +69,7 @@ class PolicyCheckResponse(BaseModel):
 
 class AuditLogEntry(BaseModel):
     """Single audit log entry."""
-    
+
     timestamp: datetime
     event_type: str
     url: Optional[str] = None
@@ -82,7 +82,7 @@ class AuditLogEntry(BaseModel):
 
 class AuditLogResponse(BaseModel):
     """Response with audit logs."""
-    
+
     total: int
     entries: List[AuditLogEntry]
     from_date: Optional[datetime] = None
@@ -91,7 +91,7 @@ class AuditLogResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     """Health check response."""
-    
+
     status: str
     version: str
     uptime_seconds: float
@@ -102,7 +102,7 @@ class HealthResponse(BaseModel):
 
 class PolicySummaryResponse(BaseModel):
     """Summary of active policies."""
-    
+
     blocked_domains_count: int
     allowed_domains_count: int
     blocked_categories: List[str]
@@ -114,8 +114,7 @@ class PolicySummaryResponse(BaseModel):
 
 class ErrorResponse(BaseModel):
     """Error response."""
-    
+
     error: str
     detail: Optional[str] = None
     timestamp: datetime = Field(default_factory=datetime.now)
-
