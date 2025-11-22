@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dangerous Test Page - DO NOT OPEN DIRECTLY</title>
+    <script>
+        // Simulated malicious JavaScript (HARMLESS FOR TESTING)
+        console.log('This would be malicious code');
+        // In real malware, this would:
+        // - Steal cookies
+        // - Redirect to phishing site
+        // - Download malware
+        // - Mine cryptocurrency
+    </script>
+    <style>
+        body {
+            background: url('javascript:alert("XSS")');
+            expression: alert('IE exploit');
+        }
+    </style>
+</head>
+<body onload="console.log('Malicious onload')" onclick="console.log('Tracking click')">
+    <h1>⚠️ Test Page with Dangerous Elements</h1>
+    
+    <p>This page contains simulated threats for testing browser isolation:</p>
+    
+    <!-- Inline script -->
+    <script>
+        console.log('Inline script that would be malicious');
+        // Simulates: credential stealing, session hijacking, etc.
+    </script>
+    
+    <!-- External script -->
+    <script src="https://example.com/malware.js"></script>
+    
+    <!-- JavaScript URL -->
+    <a href="javascript:alert('XSS')">Dangerous Link</a>
+    
+    <!-- Event handlers -->
+    <button onclick="console.log('Malicious click handler')">Click Me</button>
+    <img src="pixel.gif" onerror="console.log('Error handler exploit')">
+    
+    <!-- Hidden iframe (phishing/malware) -->
+    <iframe src="https://malicious-site.com/phishing" style="display:none"></iframe>
+    
+    <!-- Tracking pixels -->
+    <img src="https://google-analytics.com/collect?id=123" width="1" height="1">
+    <img src="https://facebook.com/tr/?id=456" width="1" height="1">
+    
+    <!-- Form with dangerous action -->
+    <form action="javascript:void(0)" onsubmit="console.log('Form submit')">
+        <input type="text" name="username" onchange="console.log('Tracking input')">
+        <button type="submit">Submit</button>
+    </form>
+    
+    <!-- CSS with javascript -->
+    <div style="background: url('javascript:exploit()')">Dangerous CSS</div>
+    
+    <!-- HTML comment with conditional IE code -->
+    <!--[if IE]>
+    <script>console.log('IE-specific exploit')</script>
+    <![endif]-->
+    
+    <p><strong>Expected Isolation Results:</strong></p>
+    <ul>
+        <li>All &lt;script&gt; tags removed</li>
+        <li>All event handlers (onclick, onload, etc.) stripped</li>
+        <li>javascript: URLs blocked</li>
+        <li>Hidden iframes removed</li>
+        <li>Tracking pixels removed</li>
+        <li>Dangerous CSS sanitized</li>
+        <li>Risk score: HIGH (7-9/10)</li>
+    </ul>
+    
+    <p style="color: red;">
+        ⚠️ <strong>WARNING:</strong> This page is for testing browser isolation only.
+        Do NOT open directly in a normal browser. Use the isolation system to view safely.
+    </p>
+    
+    <script>
+        // More simulated malicious code
+        (function() {
+            console.log('IIFE that would execute malware');
+            // Real malware might:
+            // - Keylog credentials
+            // - Exfiltrate data
+            // - Install backdoors
+        })();
+    </script>
+</body>
+</html>
+

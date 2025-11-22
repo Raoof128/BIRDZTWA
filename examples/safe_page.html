@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Safe Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2c3e50; }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .success {
+            background: #e8f5e9;
+            border-left-color: #4CAF50;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Safe Test Page</h1>
+        
+        <p>This page contains only safe, static HTML content with no JavaScript or malicious elements.</p>
+        
+        <div class="info-box">
+            <strong>ℹ️ Information:</strong> This page is safe to view directly or through browser isolation.
+        </div>
+        
+        <h2>Content Examples</h2>
+        
+        <h3>Text Content</h3>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+            Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        </p>
+        
+        <h3>Lists</h3>
+        <ul>
+            <li>Safe list item 1</li>
+            <li>Safe list item 2</li>
+            <li>Safe list item 3</li>
+        </ul>
+        
+        <h3>Links</h3>
+        <p>
+            <a href="https://example.com">Example Link</a> - Safe HTTPS link
+        </p>
+        
+        <h3>Table</h3>
+        <table border="1" cellpadding="10">
+            <tr>
+                <th>Column 1</th>
+                <th>Column 2</th>
+            </tr>
+            <tr>
+                <td>Data 1</td>
+                <td>Data 2</td>
+            </tr>
+        </table>
+        
+        <div class="info-box success">
+            <strong>✅ Expected Isolation Results:</strong>
+            <ul>
+                <li>No scripts to remove</li>
+                <li>No event handlers to strip</li>
+                <li>No dangerous URLs to block</li>
+                <li>No iframes to remove</li>
+                <li>Risk score: MINIMAL (0-1/10)</li>
+            </ul>
+        </div>
+        
+        <p><em>This page is completely safe and demonstrates what clean HTML looks like.</em></p>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,58 @@
+# Browser Isolation System - Docker Compose
+# Complete stack deployment
+
+version: '3.8'
+
+services:
+  # API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: browser_isolation_api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+      - ./config:/app/config
+    networks:
+      - isolation_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Dashboard (Streamlit)
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: browser_isolation_dashboard
+    command: ["streamlit", "run", "client/safe_viewer.py", "--server.port=8501", "--server.address=0.0.0.0"]
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    networks:
+      - isolation_network
+    depends_on:
+      - api
+    restart: unless-stopped
+
+networks:
+  isolation_network:
+    driver: bridge
+
+volumes:
+  logs:
+  reports:
+

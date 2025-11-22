@@ -1,0 +1,43 @@
+# Test URLs for Browser Isolation System
+# Use these URLs to test the isolation engine
+
+# Safe URLs (should pass policy and have low risk scores)
+https://example.com
+https://www.wikipedia.org
+https://github.com
+https://news.ycombinator.com
+https://stackoverflow.com
+
+# JavaScript-heavy sites (test sanitization)
+https://www.reddit.com
+https://twitter.com
+https://www.youtube.com
+
+# News sites (moderate JavaScript, ads, trackers)
+https://www.bbc.com
+https://www.cnn.com
+https://www.nytimes.com
+
+# Local test pages
+file:///path/to/browser_isolation/examples/safe_page.html
+file:///path/to/browser_isolation/examples/dangerous_page.html
+
+# Test cases for policy blocking
+# (These should be blocked - DO NOT use real malicious URLs)
+https://malware-site.com  # Blocked domain
+https://phishing-example.net  # Blocked domain
+https://crypto-miner.io  # Blocked domain
+
+# IP addresses (should trigger warnings)
+http://192.168.1.1
+http://127.0.0.1:8080
+
+# Suspicious TLDs (should trigger warnings)
+https://test.xyz
+https://example.tk
+
+# Invalid protocols (should be blocked)
+ftp://example.com
+file:///etc/passwd
+javascript:alert('test')
+

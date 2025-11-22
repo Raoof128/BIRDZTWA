@@ -1,0 +1,77 @@
+{
+  "javascript": {
+    "remove_inline_scripts": true,
+    "remove_external_scripts": true,
+    "remove_event_handlers": true,
+    "remove_javascript_urls": true,
+    "blocked_patterns": [
+      "eval(",
+      "Function(",
+      "setTimeout(",
+      "setInterval(",
+      "document.write"
+    ]
+  },
+  "content": {
+    "remove_ads": true,
+    "remove_trackers": true,
+    "remove_hidden_iframes": true,
+    "remove_popups": true,
+    "sanitize_css": true,
+    "remove_comments": true,
+    "max_nesting_depth": 100
+  },
+  "resources": {
+    "allow_images": true,
+    "allow_stylesheets": true,
+    "allow_fonts": true,
+    "block_flash": true,
+    "block_webassembly": true,
+    "block_service_workers": true,
+    "block_websockets": true
+  },
+  "attributes": {
+    "remove_event_attributes": true,
+    "remove_form_actions": false,
+    "sanitize_urls": true,
+    "blocked_protocols": [
+      "javascript:",
+      "data:",
+      "vbscript:",
+      "file:"
+    ]
+  },
+  "tracking": {
+    "block_analytics": true,
+    "block_social_media_widgets": true,
+    "block_fingerprinting": true,
+    "blocked_domains": [
+      "google-analytics.com",
+      "googletagmanager.com",
+      "facebook.com/tr",
+      "connect.facebook.net",
+      "doubleclick.net",
+      "scorecardresearch.com",
+      "quantserve.com"
+    ]
+  },
+  "security": {
+    "enforce_https": false,
+    "validate_certificates": true,
+    "block_mixed_content": true,
+    "xss_protection": true,
+    "content_security_policy": {
+      "default-src": "'none'",
+      "img-src": "'self'",
+      "style-src": "'self' 'unsafe-inline'",
+      "script-src": "'none'"
+    }
+  },
+  "reporting": {
+    "log_removed_scripts": true,
+    "log_blocked_urls": true,
+    "log_suspicious_patterns": true,
+    "generate_risk_score": true
+  }
+}
+

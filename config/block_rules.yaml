@@ -1,0 +1,104 @@
+# Browser Isolation - Block Rules Configuration
+# URL and domain filtering policies
+
+blocked_domains:
+  # Known malware distributors
+  - malware-site.com
+  - virus-host.net
+  - trojan-download.io
+  - exploit-kit.com
+  
+  # Known phishing sites
+  - phishing-example.net
+  - fake-login.com
+  - credential-stealer.net
+  
+  # Cryptocurrency miners
+  - crypto-miner.io
+  - coinhive.com
+  - jsecoin.com
+  
+  # Suspicious ad networks
+  - suspicious-ads.com
+  - malicious-popups.net
+
+allowed_domains:
+  # Trusted domains (whitelist)
+  - google.com
+  - github.com
+  - stackoverflow.com
+  - microsoft.com
+  - amazon.com
+  - wikipedia.org
+  - mozilla.org
+
+blocked_categories:
+  # Content categories to block
+  - ads
+  - trackers
+  - cryptominers
+  - malware
+  - phishing
+  - adult
+  - gambling
+
+blocked_patterns:
+  # Regex patterns for URL blocking
+  - '.*\.(tk|ml|ga|cf|gq)$'  # Suspicious TLDs
+  - '.*malware.*'
+  - '.*phish.*'
+  - '.*exploit.*'
+  - '.*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}.*'  # IP addresses
+
+allowed_patterns:
+  # Regex patterns for URL allowing
+  - '^https://github\.com/.*'
+  - '^https://.*\.gov$'  # Government sites
+
+malware_domains:
+  # Known malware distribution sites
+  - known-malware.com
+  - virus-distributor.net
+  - trojan-host.io
+  - ransomware-delivery.com
+  - botnet-controller.net
+
+phishing_domains:
+  # Known phishing sites (typosquatting, etc.)
+  - paypa1.com
+  - g00gle.com
+  - micr0soft.com
+  - arnaz0n.com
+  - app1e.com
+
+# Sanitization settings
+sanitization_rules:
+  remove_javascript: true
+  remove_iframes: true
+  remove_forms: false  # Allow forms in read-only mode
+  allow_images: true
+  allow_css: true
+  allow_links: true
+  sanitize_css: true
+  remove_trackers: true
+  remove_comments: true
+
+# Content type restrictions
+allowed_content_types:
+  - text/html
+  - text/plain
+  - application/xhtml+xml
+  - text/xml
+  - application/xml
+
+# Size limits
+max_page_size: 52428800  # 50 MB
+max_render_time: 120  # seconds
+
+# Risk thresholds
+risk_thresholds:
+  critical: 7.0
+  high: 5.0
+  medium: 3.0
+  low: 1.0
+
