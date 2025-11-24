@@ -47,33 +47,33 @@ git clone <repository-url>
 cd browser_isolation
 
 # Start services
-docker-compose up -d
+docker compose up -d
 
 # Verify deployment
-docker-compose ps
+docker compose ps
 curl http://localhost:8000/api/v1/health
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop services
-docker-compose down
+docker compose down
 ```
 
 ### Production Docker Deployment
 
 ```bash
 # Build production images
-docker-compose -f docker-compose.yml build --no-cache
+docker compose -f docker-compose.yml build --no-cache
 
 # Start with production settings
-docker-compose up -d
+docker compose up -d
 
 # Scale API instances
-docker-compose up -d --scale api=3
+docker compose up -d --scale api=3
 
 # Enable auto-restart
-docker-compose up -d --restart unless-stopped
+docker compose up -d --restart unless-stopped
 ```
 
 ### Custom Configuration
@@ -267,14 +267,13 @@ sudo yum install docker -y
 sudo service docker start
 sudo usermod -a -G docker ec2-user
 
-# Install Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
+# Install Docker Compose plugin
+sudo yum install -y docker-compose-plugin
 
 # Deploy
 git clone <repository-url>
 cd browser_isolation
-docker-compose up -d
+docker compose up -d
 
 # Configure security group
 # Allow ports: 22 (SSH), 8000 (API), 8501 (Dashboard)

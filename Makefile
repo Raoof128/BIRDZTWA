@@ -9,6 +9,7 @@
 # Python interpreter
 PYTHON := python3
 PIP := $(PYTHON) -m pip
+COMPOSE ?= docker compose
 
 # Project directories
 SRC_DIRS := engine api client cli headless logging_mod reporting
@@ -104,23 +105,23 @@ security-audit: ## Comprehensive security audit
 ##@ Docker
 
 docker-build: ## Build Docker images
-	docker-compose build
+$(COMPOSE) build
 
 docker-up: ## Start Docker containers
-	docker-compose up -d
+$(COMPOSE) up -d
 
 docker-down: ## Stop Docker containers
-	docker-compose down
+$(COMPOSE) down
 
 docker-logs: ## Show Docker logs
-	docker-compose logs -f
+$(COMPOSE) logs -f
 
 docker-clean: ## Remove Docker containers and volumes
-	docker-compose down -v
-	docker system prune -f
+$(COMPOSE) down -v
+docker system prune -f
 
 docker-test: ## Run tests in Docker
-	docker-compose run --rm api pytest tests/ -v
+$(COMPOSE) run --rm api pytest tests/ -v
 
 ##@ Documentation
 

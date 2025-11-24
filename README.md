@@ -86,7 +86,7 @@ graph TB
 ```bash
 # Required
 - Python 3.10+
-- Docker & Docker Compose
+- Docker with the Compose plugin
 - 2GB RAM minimum
 ```
 
@@ -98,7 +98,7 @@ git clone <repo-url>
 cd browser_isolation
 
 # Start full stack
-docker-compose up -d
+docker compose up -d
 
 # Access services
 # API: http://localhost:8000

@@ -417,13 +417,13 @@ browser_isolation/
 
 ```bash
 # Build and run containers
-docker-compose up --build
+docker compose up --build
 
 # Run tests in container
-docker-compose run api pytest tests/ -v
+docker compose run api pytest tests/ -v
 
 # Access logs
-docker-compose logs -f api
+docker compose logs -f api
 ```
 
 ### Debugging

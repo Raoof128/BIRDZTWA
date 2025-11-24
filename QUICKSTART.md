@@ -9,7 +9,7 @@ Get Browser Isolation running in 5 minutes!
 cd browser_isolation
 
 # Start full stack
-docker-compose up -d
+docker compose up -d
 
 # Access services
 # API: http://localhost:8000
