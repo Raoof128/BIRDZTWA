@@ -498,7 +498,7 @@ MIT License - Free for educational and commercial use.
 
 - [NIST Zero Trust Architecture](https://www.nist.gov/publications/zero-trust-architecture)
 - [Cloudflare Browser Isolation](https://www.cloudflare.com/products/zero-trust/browser-isolation/)
-- [Browser Isolation (Cloudflare Learning Center)](https://www.cloudflare.com/learning/access-management/what-is-browser-isolation/)
+- [Remote Browser Isolation (Wikipedia)](https://en.wikipedia.org/wiki/Remote_browser_isolation)
 - [OWASP Top Ten](https://owasp.org/www-project-top-ten/)
 
 ---

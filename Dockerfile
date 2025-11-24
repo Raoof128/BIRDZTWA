@@ -9,11 +9,29 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install core system dependencies; playwright will handle browser-specific libs
+# Install core system dependencies required for Chromium
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     gnupg \
     wget \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libgdk-pixbuf2.0-0 \
+    libnspr4 \
+    libnss3 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libasound2t64 \
+    libdrm2 \
+    libgbm1 \
+    xdg-utils \
+    fonts-liberation \
+    fonts-unifont \
+    fonts-ubuntu \
     && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
@@ -25,8 +43,7 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright browsers and system requirements
-RUN playwright install-deps chromium
+# Install Playwright browsers (system libraries already provisioned above)
 RUN playwright install chromium
 
 # Copy application code
