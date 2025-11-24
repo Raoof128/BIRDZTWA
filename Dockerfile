@@ -26,8 +26,12 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p logs reports
 
-# Create non-root user for security
-RUN useradd -m -u 1000 isolation && \
+# Create non-root user for security (handle pre-existing UID collisions)
+RUN if id -u isolation >/dev/null 2>&1; then \
+        echo "user 'isolation' already exists"; \
+    else \
+        useradd -m -s /bin/bash isolation; \
+    fi && \
     chown -R isolation:isolation /app
 
 USER isolation
