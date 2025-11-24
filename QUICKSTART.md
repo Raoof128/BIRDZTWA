@@ -105,8 +105,9 @@ curl -X POST http://localhost:8000/api/v1/render \
 ### Playwright not installed
 ```bash
 playwright install chromium
-playwright install-deps chromium
 ```
+
+If your host is missing OS-level libraries for Chromium, install the packages recommended in the [Playwright Linux prerequisites](https://playwright.dev/docs/browsers#linux).
 
 ### Port already in use
 ```bash

@@ -1,7 +1,7 @@
 # Browser Isolation System - Docker Image
-# Production-ready containerized deployment
+# Production-ready containerized deployment built on Playwright's browser-ready base image
 
-FROM python:3.11-slim
+FROM mcr.microsoft.com/playwright/python:v1.41.0-jammy
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
@@ -9,42 +9,14 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install core system dependencies required for Chromium
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    gnupg \
-    wget \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libcups2 \
-    libdbus-1-3 \
-    libgdk-pixbuf2.0-0 \
-    libnspr4 \
-    libnss3 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libasound2t64 \
-    libdrm2 \
-    libgbm1 \
-    xdg-utils \
-    fonts-liberation \
-    fonts-unifont \
-    fonts-ubuntu \
-    && rm -rf /var/lib/apt/lists/*
-
 # Create app directory
 WORKDIR /app
 
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies
+# Install Python dependencies (Playwright and Chromium are already provided by the base image)
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Install Playwright browsers (system libraries already provisioned above)
-RUN playwright install chromium
 
 # Copy application code
 COPY . .
