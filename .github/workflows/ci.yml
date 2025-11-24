@@ -178,6 +178,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          pull: true
           push: false
           tags: browser-isolation:test
           cache-from: type=gha

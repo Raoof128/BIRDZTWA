@@ -358,7 +358,13 @@ sudo apt install -y \
   libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
   libcups2 libdrm2 libxkbcommon0 libxcomposite1 \
   libxdamage1 libxfixes3 libxrandr2 libgbm1 \
-  libpango-1.0-0 libcairo2 libasound2t64
+  libpango-1.0-0 libcairo2
+
+# libasound package names vary across Ubuntu releases
+LIBASOUND_PKG=$(apt-cache pkgnames | grep -E '^libasound2(t64)?$' | head -n 1 || true)
+if [ -n "$LIBASOUND_PKG" ]; then
+  sudo apt install -y "$LIBASOUND_PKG"
+fi
 
 # Create application user
 sudo useradd -m -s /bin/bash isolation

@@ -7,7 +7,8 @@ FROM mcr.microsoft.com/playwright/python:v1.41.0-jammy
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 # Create app directory
 WORKDIR /app
@@ -16,7 +17,8 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install Python dependencies (Playwright and Chromium are already provided by the base image)
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
