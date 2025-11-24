@@ -30,11 +30,11 @@ setup(
     description="Zero-Trust Remote Browser Isolation System",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/browser_isolation",
+    url="https://github.com/issues",
     project_urls={
-        "Bug Reports": "https://github.com/yourusername/browser_isolation/issues",
-        "Source": "https://github.com/yourusername/browser_isolation",
-        "Documentation": "https://github.com/yourusername/browser_isolation#readme",
+        "Bug Reports": "https://github.com/issues",
+        "Source": "https://github.com",
+        "Documentation": "https://github.com",
     },
     packages=find_packages(exclude=["tests", "tests.*", "examples"]),
     classifiers=[

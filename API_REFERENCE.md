@@ -464,7 +464,7 @@ Webhook payload:
 ## Support
 
 - **Documentation:** [README.md](README.md)
-- **Issues:** [GitHub Issues](https://github.com/yourusername/browser_isolation/issues)
+- **Issues:** [Support & Issue Guide](SUPPORT.md#reporting-issues)
 - **Email:** support@example.com
 
 ---

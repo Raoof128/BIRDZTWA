@@ -43,7 +43,7 @@ Comprehensive deployment instructions for Browser Isolation System across variou
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/browser_isolation.git
+git clone <repository-url>
 cd browser_isolation
 
 # Start services
@@ -272,7 +272,7 @@ sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 
 # Deploy
-git clone https://github.com/yourusername/browser_isolation.git
+git clone <repository-url>
 cd browser_isolation
 docker-compose up -d
 
@@ -369,7 +369,7 @@ sudo su - isolation
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/browser_isolation.git
+git clone <repository-url>
 cd browser_isolation
 
 # Create virtual environment
@@ -542,7 +542,7 @@ Import dashboard JSON with key metrics:
 curl http://localhost:8000/api/v1/health
 
 # Dashboard health
-curl http://localhost:8501/_stcore/health
+curl localhost:8501/_stcore/health
 
 # Docker health
 docker ps --format "table {{.Names}}\t{{.Status}}"

@@ -263,7 +263,7 @@ def start_api(host, port, reload):
 
 @cli.command()
 @click.option("--port", default=8501, help="Dashboard port")
-def start_dashboard(port):
+def start_dashboard(port: int):
     """
     Start the Streamlit dashboard.
 
@@ -272,7 +272,11 @@ def start_dashboard(port):
     console.print("\n[bold blue]🎨 Starting Safe Viewer Dashboard[/bold blue]")
     console.print(f"[cyan]Port:[/cyan] {port}\n")
 
-    import subprocess
+    import subprocess  # nosec B404 - required to launch the local dashboard process
+
+    if port <= 0 or port > 65535:
+        console.print("[red]❌ Invalid port specified. Choose a port between 1-65535.[/red]")
+        sys.exit(1)
 
     try:
         dashboard_path = Path(__file__).parent.parent / "client" / "safe_viewer.py"
@@ -285,8 +289,9 @@ def start_dashboard(port):
                 str(dashboard_path),
                 "--server.port",
                 str(port),
-            ]
-        )
+            ],
+            check=True,
+        )  # nosec B603 - executed with validated, static arguments and no shell
     except KeyboardInterrupt:
         console.print("\n[yellow]Dashboard stopped[/yellow]")
     except Exception as e:

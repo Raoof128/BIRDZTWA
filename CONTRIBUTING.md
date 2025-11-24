@@ -31,7 +31,7 @@ This project and everyone participating in it is governed by our [Code of Conduc
 1. **Fork and clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/browser_isolation.git
+git clone <repository-url>
 cd browser_isolation
 ```
 

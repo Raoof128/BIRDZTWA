@@ -14,7 +14,7 @@ docker-compose up -d
 # Access services
 # API: http://localhost:8000
 # API Docs: http://localhost:8000/docs
-# Dashboard: http://localhost:8501
+# Dashboard: localhost:8501
 ```
 
 ## Option 2: Local Development
@@ -93,7 +93,7 @@ curl -X POST http://localhost:8000/api/v1/render \
 
 ## Dashboard Usage
 
-1. Open http://localhost:8501
+1. Open localhost:8501
 2. Enter URL in sidebar
 3. Click "Isolate & Render"
 4. View safe content in main area

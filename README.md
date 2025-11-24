@@ -102,7 +102,7 @@ docker-compose up -d
 
 # Access services
 # API: http://localhost:8000
-# Dashboard: http://localhost:8501
+# Dashboard: localhost:8501
 # Docs: http://localhost:8000/docs
 ```
 
@@ -175,7 +175,7 @@ curl "http://localhost:8000/health"
 
 ### **3. Dashboard**
 
-Open `http://localhost:8501` to access the Streamlit Safe Viewer:
+Open `localhost:8501` to access the Streamlit Safe Viewer:
 
 - 🌐 **URL Input** - Enter any URL to isolate
 - 📄 **Safe DOM Display** - View sanitized content

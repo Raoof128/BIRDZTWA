@@ -186,7 +186,7 @@ quick-test: ## Quick smoke test
 dev: install-dev ## Setup and start development environment
 	@echo "🚀 Starting development environment..."
 	@echo "1. API will start on http://localhost:8000"
-	@echo "2. Dashboard will start on http://localhost:8501"
+	@echo "2. Dashboard will start on localhost:8501"
 	@$(MAKE) run-api &
 	@sleep 3
 	@$(MAKE) run-dashboard
