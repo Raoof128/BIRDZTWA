@@ -5,23 +5,20 @@ isolationctl - Browser Isolation CLI Tool
 Command-line interface for browser isolation operations.
 """
 
-import sys
 import asyncio
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
+
 import click
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
-from rich import print as rprint
+from rich.table import Table
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from engine import RemoteFetcher, DOMSanitizer, RemoteRenderer, PolicyChecker
+from engine import DOMSanitizer, PolicyChecker, RemoteFetcher, RemoteRenderer
 from logging_mod.events import AuditLogger
-from reporting.markdown_generator import MarkdownReportGenerator
 from reporting.json_exporter import JSONExporter
+from reporting.markdown_generator import MarkdownReportGenerator
 
 console = Console()
 
@@ -49,7 +46,7 @@ def render(url, timeout, output, report, no_trackers):
 
     Example: isolationctl render https://example.com
     """
-    console.print(f"\n[bold blue]🛡️  Browser Isolation - Rendering URL[/bold blue]")
+    console.print("\n[bold blue]🛡️  Browser Isolation - Rendering URL[/bold blue]")
     console.print(f"[cyan]URL:[/cyan] {url}\n")
 
     try:
@@ -63,7 +60,7 @@ def render(url, timeout, output, report, no_trackers):
             console.print(f"[red]Risk level:[/red] {decision.risk_level}")
             sys.exit(1)
 
-        console.print(f"[green]✅ Policy check passed[/green]")
+        console.print("[green]✅ Policy check passed[/green]")
 
         # Fetch
         with console.status("[yellow]Fetching URL in isolated browser..."):
@@ -82,7 +79,7 @@ def render(url, timeout, output, report, no_trackers):
             sanitizer = DOMSanitizer(remove_trackers=no_trackers)
             sanit_result = sanitizer.sanitize(fetch_result.html)
 
-        console.print(f"[green]✅ Sanitization complete[/green]")
+        console.print("[green]✅ Sanitization complete[/green]")
 
         # Render
         renderer = RemoteRenderer()
@@ -95,7 +92,7 @@ def render(url, timeout, output, report, no_trackers):
 
         # Display results
         console.print("\n" + "=" * 70)
-        console.print(f"[bold]Isolation Results[/bold]")
+        console.print("[bold]Isolation Results[/bold]")
         console.print("=" * 70 + "\n")
 
         # Create results table
@@ -159,7 +156,7 @@ def check_url(url):
 
     Example: isolationctl check-url https://example.com
     """
-    console.print(f"\n[bold blue]🔍 Policy Check[/bold blue]")
+    console.print("\n[bold blue]🔍 Policy Check[/bold blue]")
     console.print(f"[cyan]URL:[/cyan] {url}\n")
 
     policy_checker = PolicyChecker()
@@ -200,7 +197,7 @@ def report(format, output, limit):
 
     Example: isolationctl report --format markdown --output report.md
     """
-    console.print(f"\n[bold blue]📄 Generating Report[/bold blue]\n")
+    console.print("\n[bold blue]📄 Generating Report[/bold blue]\n")
 
     try:
         audit_logger = AuditLogger()
@@ -215,7 +212,7 @@ def report(format, output, limit):
             content = exporter.export_multiple(logs)
         else:
             # Create markdown summary
-            content = f"# Browser Isolation Audit Report\n\n"
+            content = "# Browser Isolation Audit Report\n\n"
             content += f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
             content += f"**Entries:** {len(logs)}\n\n"
 
@@ -249,7 +246,7 @@ def start_api(host, port, reload):
 
     Example: isolationctl start-api --port 8000
     """
-    console.print(f"\n[bold blue]🚀 Starting Browser Isolation API[/bold blue]")
+    console.print("\n[bold blue]🚀 Starting Browser Isolation API[/bold blue]")
     console.print(f"[cyan]Host:[/cyan] {host}")
     console.print(f"[cyan]Port:[/cyan] {port}\n")
 
@@ -272,7 +269,7 @@ def start_dashboard(port):
 
     Example: isolationctl start-dashboard --port 8501
     """
-    console.print(f"\n[bold blue]🎨 Starting Safe Viewer Dashboard[/bold blue]")
+    console.print("\n[bold blue]🎨 Starting Safe Viewer Dashboard[/bold blue]")
     console.print(f"[cyan]Port:[/cyan] {port}\n")
 
     import subprocess
@@ -304,7 +301,7 @@ def stats():
 
     Example: isolationctl stats
     """
-    console.print(f"\n[bold blue]📊 Browser Isolation Statistics[/bold blue]\n")
+    console.print("\n[bold blue]📊 Browser Isolation Statistics[/bold blue]\n")
 
     try:
         audit_logger = AuditLogger()

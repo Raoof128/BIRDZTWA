@@ -5,13 +5,14 @@ Enforces access policies, URL filtering, and content rules
 before and during isolation operations.
 """
 
-import re
 import logging
-from typing import Dict, List, Optional, Tuple
-from urllib.parse import urlparse
+import re
 from pathlib import Path
-import yaml
+from typing import Dict, List, Optional
+from urllib.parse import urlparse
+
 import tldextract
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -197,7 +198,7 @@ class PolicyChecker:
                     matched_rules.append(f"blocked_pattern:{pattern.pattern}")
                     return PolicyDecision(
                         allowed=False,
-                        reason=f"URL matches blocked pattern",
+                        reason="URL matches blocked pattern",
                         risk_level="high",
                         matched_rules=matched_rules,
                     )
@@ -297,7 +298,8 @@ class PolicyChecker:
 
         # Check for suspicious TLDs
         suspicious_tlds = [".xyz", ".top", ".tk", ".ml", ".ga", ".cf", ".gq"]
-        if any(url.lower().endswith(tld) for tld in suspicious_tlds):
+        hostname = parsed.netloc.lower()
+        if any(hostname.endswith(tld) for tld in suspicious_tlds):
             indicators.append("suspicious_tld")
 
         # Check for very long domains (possible DGA)

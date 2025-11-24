@@ -7,9 +7,9 @@ that can be transmitted to the client for display.
 
 import json
 import logging
-from typing import Dict, List, Optional, Any
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from dataclasses import dataclass, asdict
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -383,7 +383,7 @@ class RemoteRenderer:
                     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 }}
                 h1 {{ color: #d32f2f; }}
-                .url {{ 
+                .url {{
                     background: #f5f5f5;
                     padding: 10px;
                     border-radius: 4px;

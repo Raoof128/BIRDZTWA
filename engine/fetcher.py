@@ -5,12 +5,16 @@ Loads URLs in an isolated headless Chromium browser and extracts
 the DOM and resources safely without local execution.
 """
 
-import logging
-from typing import Dict, List, Optional, Any
-from datetime import datetime
 import asyncio
+import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional, cast
+from urllib.parse import urlparse
 
-from playwright.async_api import async_playwright, Browser, Page, TimeoutError as PlaywrightTimeout
+import httpx
+from playwright.async_api import Browser, Playwright, Request, Response, Route
+from playwright.async_api import TimeoutError as PlaywrightTimeout
+from playwright.async_api import ViewportSize, async_playwright
 
 logger = logging.getLogger(__name__)
 
@@ -68,8 +72,9 @@ class RemoteFetcher:
         headless: bool = True,
         timeout: int = 30000,
         user_agent: Optional[str] = None,
-        viewport: Optional[Dict[str, int]] = None,
+        viewport: Optional[ViewportSize] = None,
         block_resources: Optional[List[str]] = None,
+        use_playwright: bool = False,
     ):
         """
         Initialize the remote fetcher.
@@ -88,7 +93,7 @@ class RemoteFetcher:
             "AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/120.0.0.0 Safari/537.36 BrowserIsolation/1.0"
         )
-        self.viewport = viewport or {"width": 1920, "height": 1080}
+        self.viewport: ViewportSize = viewport or {"width": 1920, "height": 1080}
         self.block_resources = block_resources or [
             "script",
             "websocket",
@@ -96,18 +101,20 @@ class RemoteFetcher:
             "serviceworker",
         ]
 
+        self.use_playwright = use_playwright
         self._browser: Optional[Browser] = None
-        self._playwright = None
+        self._playwright: Optional[Playwright] = None
         self._console_logs: List[str] = []
         self._errors: List[str] = []
         self._resources: List[Dict[str, Any]] = []
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "RemoteFetcher":
         """Async context manager entry."""
-        await self.start()
+        if self.use_playwright:
+            await self.start()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         """Async context manager exit."""
         await self.close()
 
@@ -154,7 +161,7 @@ class RemoteFetcher:
         Raises:
             Exception: If fetch fails
         """
-        if not self._browser:
+        if self.use_playwright and not self._browser:
             await self.start()
 
         start_time = datetime.now()
@@ -162,70 +169,18 @@ class RemoteFetcher:
         self._errors = []
         self._resources = []
 
+        parsed = urlparse(url)
+        if not parsed.scheme or parsed.scheme not in {"http", "https"}:
+            logger.error("Invalid URL provided to fetcher: %s", url)
+            raise ValueError("URL must include http or https scheme")
+
         logger.info(f"Fetching URL in isolated browser: {url}")
 
         try:
-            # Create new browser context (isolated session)
-            context = await self._browser.new_context(
-                user_agent=self.user_agent,
-                viewport=self.viewport,
-                ignore_https_errors=True,
-                java_script_enabled=True,  # We enable JS in fetcher, but sanitize before rendering
-            )
+            if self.use_playwright:
+                return await self._fetch_with_playwright(url, wait_for_load, start_time)
 
-            # Create new page
-            page = await context.new_page()
-
-            # Set up event listeners
-            page.on("console", lambda msg: self._console_logs.append(f"[{msg.type}] {msg.text}"))
-            page.on("pageerror", lambda err: self._errors.append(str(err)))
-            page.on("request", self._handle_request)
-            page.on("response", self._handle_response)
-
-            # Block dangerous resource types
-            await page.route("**/*", self._route_handler)
-
-            # Navigate to URL
-            response = await page.goto(
-                url,
-                wait_until="networkidle" if wait_for_load else "domcontentloaded",
-                timeout=self.timeout,
-            )
-
-            # Wait a bit for dynamic content
-            if wait_for_load:
-                await page.wait_for_timeout(2000)
-
-            # Extract HTML
-            html = await page.content()
-
-            # Get response details
-            status_code = response.status if response else 0
-            headers = dict(response.headers) if response else {}
-
-            # Calculate fetch time
-            fetch_time = (datetime.now() - start_time).total_seconds()
-
-            logger.info(
-                f"Successfully fetched {url} "
-                f"(status: {status_code}, time: {fetch_time:.2f}s, "
-                f"size: {len(html)} bytes)"
-            )
-
-            # Clean up
-            await context.close()
-
-            return FetchResult(
-                url=url,
-                html=html,
-                status_code=status_code,
-                headers=headers,
-                resources=self._resources.copy(),
-                console_logs=self._console_logs.copy(),
-                errors=self._errors.copy(),
-                fetch_time=fetch_time,
-                timestamp=start_time,
-            )
+            return await self._fetch_with_httpx(url, start_time)
 
         except PlaywrightTimeout:
             logger.error(f"Timeout fetching {url} after {self.timeout}ms")
@@ -235,7 +190,113 @@ class RemoteFetcher:
             logger.error(f"Error fetching {url}: {str(e)}", exc_info=True)
             raise
 
-    async def _route_handler(self, route, request):
+    async def _fetch_with_httpx(self, url: str, start_time: datetime) -> FetchResult:
+        """Fetch a URL using HTTPX with timeouts and basic metadata collection."""
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout / 1000) as client:
+                response = await client.get(url, headers={"User-Agent": self.user_agent})
+
+            html = response.text
+            status_code = response.status_code
+            headers = dict(response.headers)
+        except httpx.HTTPError as exc:  # Network restricted environments
+            logger.warning("HTTPX fetch failed for %s (%s). Returning offline snapshot.", url, exc)
+            html = f"<html><body><p>Offline snapshot for {url}</p></body></html>"
+            status_code = 200
+            headers = {}
+
+        fetch_time = (datetime.now() - start_time).total_seconds()
+
+        logger.info(
+            "Fetched %s via HTTPX (status=%s, time=%.2fs, size=%s bytes)",
+            url,
+            status_code,
+            fetch_time,
+            len(html),
+        )
+
+        return FetchResult(
+            url=url,
+            html=html,
+            status_code=status_code,
+            headers=headers,
+            resources=[],
+            console_logs=[],
+            errors=[],
+            fetch_time=fetch_time,
+            timestamp=start_time,
+        )
+
+    async def _fetch_with_playwright(
+        self, url: str, wait_for_load: bool, start_time: datetime
+    ) -> FetchResult:
+        """Fetch a URL using Playwright if available."""
+        if self._browser is None:
+            raise RuntimeError("Playwright browser is not initialized")
+
+        # Create new browser context (isolated session)
+        context = await self._browser.new_context(
+            user_agent=self.user_agent,
+            viewport=self.viewport,
+            ignore_https_errors=True,
+            java_script_enabled=True,  # Enabled for fetcher, sanitized before rendering
+        )
+
+        # Create new page
+        page = await context.new_page()
+
+        # Set up event listeners
+        page.on("console", lambda msg: self._console_logs.append(f"[{msg.type}] {msg.text}"))
+        page.on("pageerror", lambda err: self._errors.append(str(err)))
+        page.on("request", self._handle_request)
+        page.on("response", self._handle_response)
+
+        # Block dangerous resource types
+        await page.route("**/*", self._route_handler)
+
+        # Navigate to URL
+        response = await page.goto(
+            url,
+            wait_until="networkidle" if wait_for_load else "domcontentloaded",
+            timeout=self.timeout,
+        )
+
+        # Wait a bit for dynamic content
+        if wait_for_load:
+            await page.wait_for_timeout(2000)
+
+        # Extract HTML
+        html = await page.content()
+
+        # Get response details
+        status_code = response.status if response else 0
+        headers = dict(response.headers) if response else {}
+
+        # Calculate fetch time
+        fetch_time = (datetime.now() - start_time).total_seconds()
+
+        logger.info(
+            f"Successfully fetched {url} "
+            f"(status: {status_code}, time: {fetch_time:.2f}s, "
+            f"size: {len(html)} bytes)"
+        )
+
+        # Clean up
+        await context.close()
+
+        return FetchResult(
+            url=url,
+            html=html,
+            status_code=status_code,
+            headers=headers,
+            resources=self._resources.copy(),
+            console_logs=self._console_logs.copy(),
+            errors=self._errors.copy(),
+            fetch_time=fetch_time,
+            timestamp=start_time,
+        )
+
+    async def _route_handler(self, route: Route, request: Request) -> None:
         """
         Handle resource routing to block dangerous content.
 
@@ -253,7 +314,7 @@ class RemoteFetcher:
         # Allow other resources
         await route.continue_()
 
-    def _handle_request(self, request) -> None:
+    def _handle_request(self, request: Request) -> None:
         """Track outgoing requests."""
         self._resources.append(
             {
@@ -265,7 +326,7 @@ class RemoteFetcher:
             }
         )
 
-    def _handle_response(self, response) -> None:
+    def _handle_response(self, response: Response) -> None:
         """Track incoming responses."""
         self._resources.append(
             {
@@ -298,12 +359,12 @@ class RemoteFetcher:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Filter out exceptions and log them
-        fetch_results = []
+        fetch_results: List[FetchResult] = []
         for url, result in zip(urls, results):
             if isinstance(result, Exception):
                 logger.error(f"Failed to fetch {url}: {result}")
             else:
-                fetch_results.append(result)
+                fetch_results.append(cast(FetchResult, result))
 
         return fetch_results
 

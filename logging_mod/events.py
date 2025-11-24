@@ -6,11 +6,11 @@ Provides comprehensive audit logging for all isolation operations.
 
 import json
 import logging
-from pathlib import Path
-from typing import Dict, List, Optional, Any
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
-from dataclasses import dataclass, asdict
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 class EventType(str, Enum):
@@ -198,7 +198,7 @@ class AuditLogger:
         total_events = len(self._event_cache)
 
         # Count by event type
-        event_counts = {}
+        event_counts: Dict[str, int] = {}
         for event in self._event_cache:
             event_counts[event.event_type] = event_counts.get(event.event_type, 0) + 1
 
@@ -213,12 +213,12 @@ class AuditLogger:
             "average_risk_score": round(avg_risk, 2),
             "high_risk_events": high_risk_count,
             "cache_size": len(self._event_cache),
-            "oldest_event": self._event_cache[0].timestamp.isoformat()
-            if self._event_cache
-            else None,
-            "newest_event": self._event_cache[-1].timestamp.isoformat()
-            if self._event_cache
-            else None,
+            "oldest_event": (
+                self._event_cache[0].timestamp.isoformat() if self._event_cache else None
+            ),
+            "newest_event": (
+                self._event_cache[-1].timestamp.isoformat() if self._event_cache else None
+            ),
         }
 
     def export_logs(

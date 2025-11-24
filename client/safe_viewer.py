@@ -4,19 +4,13 @@ Safe Viewer Dashboard - Streamlit UI
 Interactive dashboard for viewing isolated web content safely.
 """
 
-import streamlit as st
-import sys
-from pathlib import Path
 import asyncio
 from datetime import datetime
+
 import plotly.graph_objects as go
-import plotly.express as px
-import pandas as pd
+import streamlit as st
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from engine import RemoteFetcher, DOMSanitizer, RemoteRenderer, PolicyChecker
+from engine import DOMSanitizer, PolicyChecker, RemoteFetcher, RemoteRenderer
 from logging_mod.events import AuditLogger
 from reporting.markdown_generator import MarkdownReportGenerator
 
@@ -53,7 +47,7 @@ def render_header():
     st.title("🛡️ Browser Isolation - Safe Viewer")
     st.markdown(
         """
-    **Zero-Trust Web Access** - View any website safely without malware risk.  
+    **Zero-Trust Web Access** - View any website safely without malware risk.
     All JavaScript removed • Tracking blocked • Complete isolation
     """
     )
@@ -222,7 +216,7 @@ def render_main_content():
         1. Enter a URL in the sidebar
         2. Click **Isolate & Render**
         3. View safe content below
-        
+
         **Try these examples:**
         - `https://example.com`
         - `https://www.wikipedia.org`
@@ -322,7 +316,9 @@ def render_blocked_content(render: dict):
         risk = item.get("risk", "low")
 
         if risk == "high":
-            st.error(f"🔴 **{item.get('type', 'unknown').upper()}** - Count: {item.get('count', 0)}")
+            st.error(
+                f"🔴 **{item.get('type', 'unknown').upper()}** - Count: {item.get('count', 0)}"
+            )
         elif risk == "medium":
             st.warning(
                 f"🟠 **{item.get('type', 'unknown').upper()}** - Count: {item.get('count', 0)}"
@@ -430,8 +426,8 @@ def main():
     st.markdown(
         """
     <div style='text-align: center; color: #666; font-size: 0.9em;'>
-        Browser Isolation System v1.0 | Zero Trust Architecture | 
-        <a href='/docs'>API Docs</a> | 
+        Browser Isolation System v1.0 | Zero Trust Architecture |
+        <a href='/docs'>API Docs</a> |
         Built with Playwright + FastAPI + Streamlit
     </div>
     """,
