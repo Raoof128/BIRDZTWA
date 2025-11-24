@@ -105,23 +105,23 @@ security-audit: ## Comprehensive security audit
 ##@ Docker
 
 docker-build: ## Build Docker images
-$(COMPOSE) build
+	$(COMPOSE) build
 
 docker-up: ## Start Docker containers
-$(COMPOSE) up -d
+	$(COMPOSE) up -d
 
 docker-down: ## Stop Docker containers
-$(COMPOSE) down
+	$(COMPOSE) down
 
 docker-logs: ## Show Docker logs
-$(COMPOSE) logs -f
+	$(COMPOSE) logs -f
 
 docker-clean: ## Remove Docker containers and volumes
-$(COMPOSE) down -v
-docker system prune -f
+	$(COMPOSE) down -v
+	docker system prune -f
 
 docker-test: ## Run tests in Docker
-$(COMPOSE) run --rm api pytest tests/ -v
+	$(COMPOSE) run --rm api pytest tests/ -v
 
 ##@ Documentation
 
