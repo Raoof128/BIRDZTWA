@@ -4,8 +4,10 @@ Tests for Remote Fetcher
 Tests the headless browser fetching component.
 """
 
-import pytest
 import asyncio
+
+import pytest
+
 from engine.fetcher import RemoteFetcher
 
 

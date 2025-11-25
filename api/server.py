@@ -5,21 +5,18 @@ Main API server for the Browser Isolation system.
 """
 
 import logging
-import sys
-from pathlib import Path
 from contextlib import asynccontextmanager
+from pathlib import Path
 
+import uvicorn
 from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
-import uvicorn
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from api.routes import router
 from api.models import ErrorResponse
+from api.routes import router
 
 # Configure logging
 logging.basicConfig(
@@ -89,21 +86,16 @@ async def root():
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """Handle validation errors."""
     logger.warning(f"Validation error: {exc}")
-    return JSONResponse(
-        status_code=422, content=ErrorResponse(error="Validation Error", detail=str(exc)).dict()
-    )
+    error = ErrorResponse(error="Validation Error", detail=str(exc))
+    return JSONResponse(status_code=422, content=jsonable_encoder(error))
 
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """Handle unexpected errors."""
     logger.error(f"Unhandled exception: {exc}", exc_info=True)
-    return JSONResponse(
-        status_code=500,
-        content=ErrorResponse(
-            error="Internal Server Error", detail="An unexpected error occurred"
-        ).dict(),
-    )
+    error = ErrorResponse(error="Internal Server Error", detail="An unexpected error occurred")
+    return JSONResponse(status_code=500, content=jsonable_encoder(error))
 
 
 def start_server(host: str = "0.0.0.0", port: int = 8000, reload: bool = False):

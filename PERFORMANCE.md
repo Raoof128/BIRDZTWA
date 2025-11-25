@@ -119,7 +119,7 @@ services:
 
 ```bash
 # Docker Compose
-docker-compose up -d --scale api=3
+docker compose up -d --scale api=3
 
 # Kubernetes
 kubectl scale deployment browser-isolation-api --replicas=5
@@ -340,7 +340,7 @@ docker stats
 # Optimize:
 # - Close browser instances properly
 # - Implement browser pooling
-# - Set memory limits in docker-compose
+# - Set memory limits in docker compose files
 # - Clear caches periodically
 ```
 

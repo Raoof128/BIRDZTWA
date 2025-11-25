@@ -5,10 +5,10 @@ This package contains the core isolation engine components for remote
 DOM rendering and sanitization.
 """
 
-from .fetcher import RemoteFetcher
 from .dom_sanitizer import DOMSanitizer
-from .remote_renderer import RemoteRenderer
+from .fetcher import RemoteFetcher
 from .policy_checker import PolicyChecker
+from .remote_renderer import RemoteRenderer
 
 __all__ = [
     "RemoteFetcher",

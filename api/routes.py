@@ -5,31 +5,31 @@ Defines all API endpoints for the Browser Isolation system.
 """
 
 import logging
-from typing import Optional
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Query, BackgroundTasks
-from fastapi.responses import JSONResponse
+from importlib import util
+from typing import Any, Dict, Optional, TypedDict
+
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+
+from engine import DOMSanitizer, PolicyChecker, RemoteFetcher, RemoteRenderer
+from logging_mod.events import AuditLogger
 
 from .models import (
+    AuditLogEntry,
+    AuditLogResponse,
+    HealthResponse,
+    PolicyCheckRequest,
+    PolicyCheckResponse,
+    PolicySummaryResponse,
     RenderRequest,
     RenderResponse,
     RenderStatus,
-    PolicyCheckRequest,
-    PolicyCheckResponse,
-    AuditLogResponse,
-    HealthResponse,
-    PolicySummaryResponse,
-    ErrorResponse,
 )
-from engine import RemoteFetcher, DOMSanitizer, RemoteRenderer, PolicyChecker
-from logging_mod.events import AuditLogger
 
 logger = logging.getLogger(__name__)
 
 # Create router
 router = APIRouter(prefix="/api/v1", tags=["isolation"])
-
-from typing import Dict, Any, TypedDict
 
 
 class Stats(TypedDict):
@@ -228,11 +228,7 @@ async def health_check():
     uptime = (datetime.now() - stats["start_time"]).total_seconds()
 
     # Check if Playwright/Chromium is available
-    chromium_available = True
-    try:
-        from playwright.async_api import async_playwright
-    except ImportError:
-        chromium_available = False
+    chromium_available = util.find_spec("playwright.async_api") is not None
 
     return HealthResponse(
         status="healthy",

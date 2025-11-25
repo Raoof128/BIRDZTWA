@@ -4,9 +4,10 @@ API Models - Pydantic Schemas
 Request and response models for the Browser Isolation API.
 """
 
-from typing import List, Dict, Optional, Any
-from pydantic import BaseModel, Field, HttpUrl, validator
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field, validator
 
 
 class RenderRequest(BaseModel):

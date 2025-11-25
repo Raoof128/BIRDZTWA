@@ -86,7 +86,7 @@ graph TB
 ```bash
 # Required
 - Python 3.10+
-- Docker & Docker Compose
+- Docker with the Compose plugin
 - 2GB RAM minimum
 ```
 
@@ -98,11 +98,11 @@ git clone <repo-url>
 cd browser_isolation
 
 # Start full stack
-docker-compose up -d
+docker compose up -d
 
 # Access services
 # API: http://localhost:8000
-# Dashboard: http://localhost:8501
+# Dashboard: localhost:8501
 # Docs: http://localhost:8000/docs
 ```
 
@@ -175,7 +175,7 @@ curl "http://localhost:8000/health"
 
 ### **3. Dashboard**
 
-Open `http://localhost:8501` to access the Streamlit Safe Viewer:
+Open `localhost:8501` to access the Streamlit Safe Viewer:
 
 - 🌐 **URL Input** - Enter any URL to isolate
 - 📄 **Safe DOM Display** - View sanitized content
@@ -498,8 +498,8 @@ MIT License - Free for educational and commercial use.
 
 - [NIST Zero Trust Architecture](https://www.nist.gov/publications/zero-trust-architecture)
 - [Cloudflare Browser Isolation](https://www.cloudflare.com/products/zero-trust/browser-isolation/)
-- [Remote Browser Isolation (Gartner)](https://www.gartner.com/en/documents/remote-browser-isolation)
-- [OWASP Browser Security](https://owasp.org/www-community/controls/Browser_Security)
+- [Remote Browser Isolation (Wikipedia)](https://en.wikipedia.org/wiki/Remote_browser_isolation)
+- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)
 
 ---
 

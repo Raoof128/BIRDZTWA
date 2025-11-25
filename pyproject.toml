@@ -92,11 +92,11 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/browser_isolation"
-Documentation = "https://github.com/yourusername/browser_isolation#readme"
-Repository = "https://github.com/yourusername/browser_isolation"
-"Bug Tracker" = "https://github.com/yourusername/browser_isolation/issues"
-Changelog = "https://github.com/yourusername/browser_isolation/blob/main/CHANGELOG.md"
+Homepage = "https://github.com"
+Documentation = "https://github.com"
+Repository = "https://github.com"
+"Bug Tracker" = "https://github.com/issues"
+Changelog = "CHANGELOG.md"
 
 [project.scripts]
 isolationctl = "cli.isolationctl:cli"

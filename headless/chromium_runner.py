@@ -5,11 +5,10 @@ Manages the lifecycle of headless Chromium browsers for isolation operations.
 """
 
 import logging
-import asyncio
-from typing import Optional, Dict, Any
 from contextlib import asynccontextmanager
+from typing import Any, Dict, Optional
 
-from playwright.async_api import async_playwright, Browser, Playwright
+from playwright.async_api import Browser, Playwright, async_playwright
 
 logger = logging.getLogger(__name__)
 

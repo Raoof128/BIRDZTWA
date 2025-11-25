@@ -176,7 +176,7 @@ playwright install chromium
 
 # Security updates
 docker pull python:3.11-slim
-docker-compose build --no-cache
+docker compose build --no-cache
 ```
 
 ## 🧪 Security Testing

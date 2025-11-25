@@ -226,9 +226,9 @@ This is the first production-ready release of the Browser Isolation System.
 
 ## Links
 
-- [GitHub Repository](https://github.com/yourusername/browser_isolation)
-- [Issue Tracker](https://github.com/yourusername/browser_isolation/issues)
-- [Documentation](https://github.com/yourusername/browser_isolation#readme)
+- [Project Overview](README.md)
+- [Issue Tracker](SUPPORT.md#reporting-issues)
+- [Documentation](README.md)
 - [Security Policy](SECURITY.md)
 
 ---

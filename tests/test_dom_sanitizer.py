@@ -5,6 +5,7 @@ Tests the DOM sanitization engine that removes JavaScript and malicious content.
 """
 
 import pytest
+
 from engine.dom_sanitizer import DOMSanitizer
 
 

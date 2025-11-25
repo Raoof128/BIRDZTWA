@@ -18,7 +18,7 @@ Thank you to everyone who has contributed to the Browser Isolation System! 🎉
 
 <!-- List significant bug reporters -->
 
-*Found a bug? Report it in our [issue tracker](https://github.com/yourusername/browser_isolation/issues)*
+*Found a bug? Report it in our [issue tracker](SUPPORT.md#reporting-issues)*
 
 ## 📝 Documentation Contributors
 
@@ -87,8 +87,8 @@ Files: 45+
 Want to contribute but not sure how? Reach out:
 
 - **Email**: contribute@example.com
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/browser_isolation/discussions)
-- **Issues**: [Issue Tracker](https://github.com/yourusername/browser_isolation/issues)
+- **Discussions**: [Community Q&A](SUPPORT.md#feature-requests)
+- **Issues**: [Issue Tracker](SUPPORT.md#reporting-issues)
 
 ---
 

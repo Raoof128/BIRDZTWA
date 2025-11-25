@@ -101,8 +101,12 @@ jobs:
             libxrandr2 \
             libgbm1 \
             libpango-1.0-0 \
-            libcairo2 \
-            libasound2
+            libcairo2
+          # libasound package naming differs between Ubuntu releases; install whichever is available
+          LIBASOUND_PKG=$(apt-cache pkgnames | grep -E '^libasound2(t64)?$' | head -n 1 || true)
+          if [ -n "$LIBASOUND_PKG" ]; then
+            sudo apt-get install -y "$LIBASOUND_PKG"
+          fi
       
       - name: Install Python dependencies
         run: |
@@ -149,10 +153,10 @@ jobs:
         run: safety check --json || true
       
       - name: Run Bandit (code security)
-        run: bandit -r . -f json -o bandit-report.json || true
+        run: bandit -r engine/ api/ client/ cli/ headless/ logging_mod/ reporting/ -c .bandit.yml -f json -o bandit-report.json || true
       
       - name: Upload security reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: security-reports
           path: |
@@ -162,27 +166,29 @@ jobs:
   docker:
     name: Docker Build & Test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
+          pull: true
           push: false
           tags: browser-isolation:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      
+
       - name: Test Docker Compose
         run: |
-          docker-compose config
-          docker-compose build
+          docker compose version
+          docker compose config
+          docker compose build
 
   # Documentation check
   docs:
@@ -198,6 +204,7 @@ jobs:
         with:
           use-quiet-mode: 'yes'
           use-verbose-mode: 'yes'
+          config-file: .mlc_config.json
       
       - name: Validate Markdown
         run: |

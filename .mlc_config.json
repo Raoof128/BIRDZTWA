@@ -1,0 +1,21 @@
+{
+  "httpHeaders": [
+    {
+      "urls": ["https://*", "http://*"],
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    { "pattern": "^https://(www\\.)?python.org" },
+    { "pattern": "^https://fastapi.tiangolo.com" },
+    { "pattern": "^https://www.nist.gov" },
+    { "pattern": "^https://www.cloudflare.com" },
+    { "pattern": "^https://(www\\.)?owasp.org" },
+    { "pattern": "^https://en.wikipedia.org" },
+    { "pattern": "^https://img.shields.io" }
+  ],
+  "retryCount": 2,
+  "timeout": "20s"
+}

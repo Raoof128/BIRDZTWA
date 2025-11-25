@@ -145,9 +145,9 @@ A **complete, production-ready Zero-Trust Browser Isolation (RBI)** system that 
 
 ### 1. **Docker (Production)**
 ```bash
-docker-compose up -d
+docker compose up -d
 # API: http://localhost:8000
-# Dashboard: http://localhost:8501
+# Dashboard: localhost:8501
 ```
 
 ### 2. **Local Development**

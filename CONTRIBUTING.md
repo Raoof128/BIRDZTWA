@@ -31,7 +31,7 @@ This project and everyone participating in it is governed by our [Code of Conduc
 1. **Fork and clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/browser_isolation.git
+git clone <repository-url>
 cd browser_isolation
 ```
 
@@ -417,13 +417,13 @@ browser_isolation/
 
 ```bash
 # Build and run containers
-docker-compose up --build
+docker compose up --build
 
 # Run tests in container
-docker-compose run api pytest tests/ -v
+docker compose run api pytest tests/ -v
 
 # Access logs
-docker-compose logs -f api
+docker compose logs -f api
 ```
 
 ### Debugging

@@ -4,8 +4,9 @@ Browser Isolation System - Setup Configuration
 Installation package for the Browser Isolation System.
 """
 
-from setuptools import setup, find_packages
 from pathlib import Path
+
+from setuptools import find_packages, setup
 
 # Read README for long description
 readme_file = Path(__file__).parent / "README.md"
@@ -29,11 +30,11 @@ setup(
     description="Zero-Trust Remote Browser Isolation System",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/browser_isolation",
+    url="https://github.com/issues",
     project_urls={
-        "Bug Reports": "https://github.com/yourusername/browser_isolation/issues",
-        "Source": "https://github.com/yourusername/browser_isolation",
-        "Documentation": "https://github.com/yourusername/browser_isolation#readme",
+        "Bug Reports": "https://github.com/issues",
+        "Source": "https://github.com",
+        "Documentation": "https://github.com",
     },
     packages=find_packages(exclude=["tests", "tests.*", "examples"]),
     classifiers=[

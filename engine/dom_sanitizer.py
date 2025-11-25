@@ -5,14 +5,26 @@ Removes all JavaScript, dangerous HTML, tracking beacons, and malicious
 content from fetched DOM to create a safe, inert representation.
 """
 
-import re
 import logging
-from typing import Dict, List, Optional, Set, Tuple
+import re
+from typing import Dict, List, Optional, TypedDict
 from urllib.parse import urlparse
-from bs4 import BeautifulSoup, Comment, NavigableString
+
 import bleach
+from bs4 import BeautifulSoup, Comment
 
 logger = logging.getLogger(__name__)
+
+
+class SanitizationStats(TypedDict):
+    """Track sanitization metrics for a run."""
+
+    removed_scripts: int
+    removed_event_handlers: int
+    removed_iframes: int
+    removed_trackers: int
+    blocked_urls: List[str]
+    suspicious_content: List[str]
 
 
 class SanitizationResult:
@@ -167,7 +179,7 @@ class DOMSanitizer:
         allow_images: bool = True,
         allow_links: bool = True,
         policies: Optional[Dict] = None,
-    ):
+    ) -> None:
         """
         Initialize DOM sanitizer.
 
@@ -191,14 +203,14 @@ class DOMSanitizer:
         self.policies = policies or {}
 
         # Statistics tracking
-        self._stats = {
-            "removed_scripts": 0,
-            "removed_event_handlers": 0,
-            "removed_iframes": 0,
-            "removed_trackers": 0,
-            "blocked_urls": [],
-            "suspicious_content": [],
-        }
+        self._stats: SanitizationStats = SanitizationStats(
+            removed_scripts=0,
+            removed_event_handlers=0,
+            removed_iframes=0,
+            removed_trackers=0,
+            blocked_urls=[],
+            suspicious_content=[],
+        )
 
     def sanitize(self, html: str, base_url: Optional[str] = None) -> SanitizationResult:
         """
@@ -285,14 +297,14 @@ class DOMSanitizer:
 
     def _reset_stats(self) -> None:
         """Reset statistics counters."""
-        self._stats = {
-            "removed_scripts": 0,
-            "removed_event_handlers": 0,
-            "removed_iframes": 0,
-            "removed_trackers": 0,
-            "blocked_urls": [],
-            "suspicious_content": [],
-        }
+        self._stats = SanitizationStats(
+            removed_scripts=0,
+            removed_event_handlers=0,
+            removed_iframes=0,
+            removed_trackers=0,
+            blocked_urls=[],
+            suspicious_content=[],
+        )
 
     def _remove_scripts(self, soup: BeautifulSoup) -> None:
         """Remove all <script> tags."""
@@ -414,7 +426,7 @@ class DOMSanitizer:
             style = tag["style"]
             if "javascript:" in style.lower() or "expression(" in style.lower():
                 del tag["style"]
-                logger.debug(f"Removed dangerous inline style")
+                logger.debug("Removed dangerous inline style")
 
         # Sanitize <style> tags
         for style_tag in soup.find_all("style"):
@@ -509,6 +521,19 @@ class DOMSanitizer:
             "dd",
         ]
 
+        if not self.remove_forms:
+            allowed_tags.extend(
+                [
+                    "form",
+                    "input",
+                    "button",
+                    "label",
+                    "select",
+                    "option",
+                    "textarea",
+                ]
+            )
+
         if self.allow_images:
             allowed_tags.append("img")
 
@@ -520,6 +545,18 @@ class DOMSanitizer:
             "p": ["class"],
             "*": ["class"],
         }
+
+        if not self.remove_forms:
+            allowed_attributes.update(
+                {
+                    "form": ["action", "method"],
+                    "input": ["type", "name", "value", "placeholder"],
+                    "button": ["type", "name", "value"],
+                    "select": ["name"],
+                    "option": ["value", "selected"],
+                    "textarea": ["name", "rows", "cols", "placeholder"],
+                }
+            )
 
         allowed_protocols = ["http", "https", "mailto"]
 
@@ -541,18 +578,18 @@ class DOMSanitizer:
         score = 0.0
 
         # Scripts are high risk
-        score += min(self._stats["removed_scripts"] * 0.5, 3.0)
+        score += min(self._stats["removed_scripts"] * 1.5, 4.0)
 
         # Event handlers are medium risk
-        score += min(self._stats["removed_event_handlers"] * 0.1, 2.0)
+        score += min(self._stats["removed_event_handlers"] * 0.2, 2.0)
 
         # Iframes are medium-high risk
-        score += min(self._stats["removed_iframes"] * 0.3, 2.0)
+        score += min(self._stats["removed_iframes"] * 1.0, 2.0)
 
         # Suspicious content is high risk
-        score += min(len(self._stats["suspicious_content"]) * 0.4, 2.0)
+        score += min(len(self._stats["suspicious_content"]) * 1.0, 2.0)
 
         # Blocked URLs
-        score += min(len(self._stats["blocked_urls"]) * 0.2, 1.0)
+        score += min(len(self._stats["blocked_urls"]) * 0.3, 2.0)
 
         return min(round(score, 1), 10.0)

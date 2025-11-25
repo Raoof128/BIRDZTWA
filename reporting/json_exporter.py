@@ -6,9 +6,9 @@ with SIEM, analytics platforms, and other systems.
 """
 
 import json
-from typing import Dict, List, Any, Optional
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 class JSONExporter:

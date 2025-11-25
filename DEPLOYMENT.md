@@ -43,37 +43,37 @@ Comprehensive deployment instructions for Browser Isolation System across variou
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/browser_isolation.git
+git clone <repository-url>
 cd browser_isolation
 
 # Start services
-docker-compose up -d
+docker compose up -d
 
 # Verify deployment
-docker-compose ps
+docker compose ps
 curl http://localhost:8000/api/v1/health
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop services
-docker-compose down
+docker compose down
 ```
 
 ### Production Docker Deployment
 
 ```bash
 # Build production images
-docker-compose -f docker-compose.yml build --no-cache
+docker compose -f docker-compose.yml build --no-cache
 
 # Start with production settings
-docker-compose up -d
+docker compose up -d
 
 # Scale API instances
-docker-compose up -d --scale api=3
+docker compose up -d --scale api=3
 
 # Enable auto-restart
-docker-compose up -d --restart unless-stopped
+docker compose up -d --restart unless-stopped
 ```
 
 ### Custom Configuration
@@ -267,14 +267,13 @@ sudo yum install docker -y
 sudo service docker start
 sudo usermod -a -G docker ec2-user
 
-# Install Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
+# Install Docker Compose plugin
+sudo yum install -y docker-compose-plugin
 
 # Deploy
-git clone https://github.com/yourusername/browser_isolation.git
+git clone <repository-url>
 cd browser_isolation
-docker-compose up -d
+docker compose up -d
 
 # Configure security group
 # Allow ports: 22 (SSH), 8000 (API), 8501 (Dashboard)
@@ -358,7 +357,13 @@ sudo apt install -y \
   libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
   libcups2 libdrm2 libxkbcommon0 libxcomposite1 \
   libxdamage1 libxfixes3 libxrandr2 libgbm1 \
-  libpango-1.0-0 libcairo2 libasound2
+  libpango-1.0-0 libcairo2
+
+# libasound package names vary across Ubuntu releases
+LIBASOUND_PKG=$(apt-cache pkgnames | grep -E '^libasound2(t64)?$' | head -n 1 || true)
+if [ -n "$LIBASOUND_PKG" ]; then
+  sudo apt install -y "$LIBASOUND_PKG"
+fi
 
 # Create application user
 sudo useradd -m -s /bin/bash isolation
@@ -369,7 +374,7 @@ sudo su - isolation
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/browser_isolation.git
+git clone <repository-url>
 cd browser_isolation
 
 # Create virtual environment
@@ -542,7 +547,7 @@ Import dashboard JSON with key metrics:
 curl http://localhost:8000/api/v1/health
 
 # Dashboard health
-curl http://localhost:8501/_stcore/health
+curl localhost:8501/_stcore/health
 
 # Docker health
 docker ps --format "table {{.Names}}\t{{.Status}}"
